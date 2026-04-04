@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Χάλκινων - Τρομπόνι & Κόρνο</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background-image: url('ROOMS/TROMPONI/Tromponi.jpg'); 
+            background-size: cover; background-position: center; z-index: -2; 
+        }
+
+        #Trombone-obj {
+            position: absolute;
+            top: 600px;
+            left: 1118px;
+            width: 260px;
+            transform: rotate(-35deg);
+            cursor: pointer; z-index: 5; transition: transform 0.2s;
+        }
+
+        #Horn-obj {
+            position: absolute;
+            top: 650px;
+            left: 833px;
+            width: 210px;
+            transform: rotate(5deg);
+            cursor: pointer; z-index: 5; transition: transform 0.2s;
+        }
+
+        #Trombone-obj:hover { transform: scale(1.02) rotate(-35deg); }
+        #Horn-obj:hover { transform: scale(1.02) rotate(5deg); }
+
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; }
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* INFO OVERLAY */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.85); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 85%; max-width: 950px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #3a3a3a, #4a4a4a); 
+            padding: 40px; border-radius: 5px; border: 10px solid #222; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #555; border: 2px solid #777; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.2rem; }
+        .tab-btn:not(.inactive) { background: #8b0000; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.4rem; line-height: 1.6; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 15px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .qa-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; border-left: 4px solid gold; font-size: 1.3rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; font-size: 1.4rem; }
+        
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+
+        /* REPERTORIO */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 850px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 150px; cursor: pointer; z-index: 10001; }
+        
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 80%; margin-top: 170px; z-index: 10002; }
+        
+        /* ΔΙΑΚΕΚΟΜΜΕΝΕΣ ΓΡΑΜΜΕΣ */
+        .rep-links li { 
+            margin: 0; 
+            padding: 12px 0;
+            border-bottom: 1px dashed rgba(74, 44, 15, 0.4); 
+        }
+        .rep-links li:last-child { border-bottom: none; }
+
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.5rem; cursor: pointer; display: block; transition: 0.2s; line-height: 1.2; }
+        .rep-links a:hover { color: #8b0000; transform: scale(1.03); }
+
+        #rep-video-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 20000; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        #repVideoPlayer { width: 85%; max-height: 80%; border: 3px solid gold; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; }
+
+        #main-video-frame { position: absolute; top: 150px; left: 600px; width: 600px; display: none; z-index: 1; background: #000; border: 4px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        #instrumentVideo { width: 100%; display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    
+    <img src="photos/Trombone.png" id="Trombone-obj" onclick="openMenu('Trombone')">
+    <img src="photos/Horn.png" id="Horn-obj" onclick="openMenu('Horn')">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleInstrumentSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <video id="instrumentVideo" controls></video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            <h1 id="info-title" style="color:gold; text-align:center; font-size: 2.5rem;"></h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="info-text"></div>
+            <div id="qa-text" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger" onclick="closeRepertorioMenu()"></div>
+            <ul id="rep-links-list" class="rep-links"></ul>
+        </div>
+    </div>
+
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">X</span>
+        <video id="repVideoPlayer" controls></video>
+    </div>
+
+    <script>
+        let selectedInstrument = "";
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+        let currentAudio = null;
+
+        const instrumentData = {
+            "Trombone": {
+                name: "ΤΡΟΜΠΟΝΙ",
+                video: "instrument/Trombone.mp4",
+                sound: "sounds/INSTRUMENTS/Trombone.m4a",
+                repertorio: [
+                    { title: "Elegy for Mippy II - Bernstein", file: "Repertorio/TROMPONI/Bernstein_ Elegy for Mippy II ∙ Norwin Hahn.mp4" },
+                    { title: "Sequenza V - Luciano Berio", file: "Repertorio/TROMPONI/Christian Lindberg - Luciano Berio Sequenza V.mp4" },
+                    { title: "Hommage à Bach - Eugène Bozza", file: "Repertorio/TROMPONI/Hommage à Bach – Eugène Bozzapour Trombone et Piano.mp4" },
+                    { title: "Fantasy for Trombone - Arnold", file: "Repertorio/TROMPONI/Jeremy Moeller, trombone - Arnold - Fantasy for Trombone, Op. 101.mp4" }
+                ],
+                info: `
+                    <ul class="info-list">
+                        <li>Το τρομπόνι είναι ο «μεγάλος αδελφός» της τρομπέτας. Ανήκει κι αυτό στα χάλκινα πνευστά και είναι φτιαγμένο από μέταλλο (χαλκό).</li>
+                        <li>Αντί για κουμπιά (βαλβίδες), έχει έναν μεγάλο σωλήνα που μπαινοβγαίνει και λέγεται «σύρτης» ή slide.</li>
+                        <li>Για να αλλάξει τις νότες, ο μουσικός σπρώχνει τον σύρτη μακριά ή τον τραβάει κοντά του. Έτσι ο σωλήνας μεγαλώνει ή μικραίνει και αλλάζει ο ήχος.</li>
+                        <li>Έχει έναν πολύ δυνατό και επιβλητικό ήχο. Μπορεί να ακουστεί πολύ χαμηλά και βαθιά, αλλά και πολύ δυνατά σαν αστραπή στις ταινίες δράσης!</li>
+                        <li>Ένα από τα πιο αστεία πράγματα που κάνει είναι το «γκλισάντο». Είναι ο ήχος που γλιστράει από τη μία νότα στην άλλη σαν σειρήνα χωρίς να σταματάει καθόλου.</li>
+                        <li>Όπως και στην τρομπέτα, ο μουσικός φυσάει σε ένα μεταλλικό επιστόμιο κάνοντας τα χείλη του να τρέμουν (να δονούνται).</li>
+                        <li>Στην ορχήστρα το τρομπόνι δίνει μεγάλη δύναμη, αλλά είναι και πολύ σημαντικό όργανο στη Jazz και στις μπάντες που παίζουν στον δρόμο.</li>
+                    </ul>`,
+                qa: `
+                    <div class="qa-grid">
+                        <div class="qa-item"><span class="qa-q">1. Σε ποια οικογένεια οργάνων ανήκει το τρομπόνι;</span> Ανήκει στα χάλκινα πνευστά.</div>
+                        <div class="qa-item"><span class="qa-q">2. Τι χρησιμοποιεί αντί για κουμπιά για να αλλάζει τις νότες;</span> Χρησιμοποιεί έναν σωλήνα που γλιστράει και λέγεται σύρτης.</div>
+                        <div class="qa-item"><span class="qa-q">3. Τι συμβαίνει στον ήχο όταν ο μουσικός σπρώχνει τον σύρτη προς τα έξω;</span> Ο ήχος γίνεται πιο βαθύς και χαμηλός.</div>
+                        <div class="qa-item"><span class="qa-q">4. Πώς λέγεται ο μουσικός που παίζει τρομπόνι;</span> Λέγεται τρομπονίστας.</div>
+                        <div class="qa-item"><span class="qa-q">5. Από τι υλικό είναι φτιαγμένο το σώμα του;</span> Είναι φτιαγμένο από μέταλλο (χαλκό ή μπρούντζο).</div>
+                        <div class="qa-item"><span class="qa-q">6. Πώς λέγεται το μέρος που ακουμπάμε τα χείλη μας;</span> Λέγεται επιστόμιο.</div>
+                        <div class="qa-item"><span class="qa-q">7. Πώς λέγεται ο αστείος ήχος που μοιάζει με σειρήνα;</span> Λέγεται γκλισάντο.</div>
+                        <div class="qa-item"><span class="qa-q">8. Είναι το τρομπόνι μεγαλύτερο ή μικρότερο από την τρομπέτα;</span> Είναι πολύ μεγαλύτερο και πιο μακρύ.</div>
+                        <div class="qa-item"><span class="qa-q">9. Πώς λέγεται το άνοιγμα στο τέλος του οργάνου;</span> Λέγεται καμπάνα.</div>
+                        <div class="qa-item"><span class="qa-q">10. Χρειάζεται δοξάρι για να παίξει;</span> Όχι, παίζει μόνο με τον αέρα και την κίνηση του χεριού.</div>
+                        <div class="qa-item"><span class="qa-q">11. Πού στηρίζει ο μουσικός το τρομπόνι καθώς παίζει;</span> Το κρατάει με τα χέρια και το ακουμπάει στον ώμο του.</div>
+                        <div class="qa-item"><span class="qa-q">12. Τι πρέπει να κάνουν τα χείλη για να βγει ήχος;</span> Πρέπει να δονούνται ή να τρέμουν πάνω στο επιστόμιο.</div>
+                        <div class="qa-item"><span class="qa-q">13. Είναι ο ήχος του τρομπονιού σιγανός;</span> Όχι, είναι από τους πιο δυνατούς και εντυπωσιακούς ήχους στην ορχήστρα.</div>
+                        <div class="qa-item"><span class="qa-q">14. Μπορεί το τρομπόνι να παίξει Jazz μουσική;</span> Ναι, είναι ένα από τα πιο βασικά όργανα της Jazz.</div>
+                    </div>`
+            },
+            "Horn": {
+                name: "ΚΟΡΝΟ",
+                video: "instrument/Horn.mp4",
+                sound: "sounds/INSTRUMENTS/Horn.m4a",
+                repertorio: [
+                    { title: "Piano and horn Sonata op. 17: Beethoven", file: "Repertorio/HORN/L. van Beethoven - Piano and horn Sonata in F Major op. 17, Cendlak & Karpińska iii.mp4" },
+                    { title: "Messiaen\'s Interstellar: Babiak", file: "Repertorio/HORN/Mikhailo Babiak, horn player, performs Olivier Messiaen\'s Interstellar Call.mp4" },
+                    { title: "Horn concerto No. 4: Mozart", file: "Repertorio/HORN/MOZART - Horn concerto No. 4, K.495 - III. Rondo_ Allegro vivace.mp4" },
+                    { title: "Horn Concerto No.2: R.Strauss", file: "Repertorio/HORN/R.Strauss Horn Concerto No.2 -3M (3_3) Radek Baborák.mp4" },
+                    { title: "Reverie Op. 24: Glazunov", file: "Repertorio/HORN/Reverie ,Op. 24 – Alexander Glazunov.mp4" }
+                ],
+                info: `
+                    <ul class="info-list">
+                        <li>Το κόρνο ξεκίνησε από τα κέρατα ζώων που χρησιμοποιούσαν οι άνθρωποι για να στέλνουν μηνύματα ή στο κυνήγι.</li>
+                        <li>Με τον καιρό, άρχισαν να το φτιάχνουν από μέταλλο και στην αρχή δεν είχε καθόλου κουμπιά.</li>
+                        <li>Πριν από περίπου 200 χρόνια, προστέθηκαν οι βαλβίδες (τα κουμπιά), που επέτρεψαν στο κόρνο να παίζει όλες τις νότες εύκολα.</li>
+                        <li>Είναι ένας πολύ μακρύς μεταλλικός σωλήνας τυλιγμένος σε κύκλο. Αν τον ξετυλίγαμε, θα έφτανε τα 4 μέτρα!</li>
+                        <li>Στο τέλος του οργάνου υπάρχει ένα μεγάλο άνοιγμα που μοιάζει με χωνί και λέγεται «καμπάνα».</li>
+                        <li>Ο μουσικός τοποθετεί τα χείλη του σε ένα μικρό εξάρτημα στην αρχή του οργάνου που έχει σχήμα σαν βαθύ χωνί.</li>
+                        <li>Ο ήχος ξεκινάει από το τρέμουλο (δόνηση) των χειλιών του μουσικού καθώς φυσάει μέσα στο επιστόμιο.</li>
+                        <li>Ο κορνίστας βάζει το δεξί του χέρι μέσα στην καμπάνα για να αλλάζει το χρώμα του ήχου και να στηρίζει το όργανο.</li>
+                        <li>Ανήκει στην οικογένεια των χάλκινων πνευστών, μαζί με την τρομπέτα και το τρομπόνι.</li>
+                        <li>Μπορεί να ακουστεί πολύ ηρωικός (σαν ταινία με ιππότες) αλλά και πολύ γλυκός και απαλός.</li>
+                        <li>Το ακούμε σε σχεδόν όλες τις μουσικές ταινιών, όπως στο Star Wars, γιατί ο ήχος του ταιριάζει με την περιπέτεια.</li>
+                        <li>Θεωρείται ένα από τα πιο δύσκολα όργανα και χρειάζεται πολύ καλό «αυτί» και υπομονή.</li>
+                    </ul>`,
+                qa: `
+                    <div class="qa-grid">
+                        <div class="qa-item"><span class="qa-q">1. Από πού πήρε το όνομά του το Κόρνο (Horn);</span> Πήρε το όνομά του από τα πραγματικά κέρατα ζώων που χρησιμοποιούσαν οι άνθρωποι στην αρχαιότητα.</div>
+                        <div class="qa-item"><span class="qa-q">2. Σε ποια οικογένεια οργάνων ανήκει;</span> Ανήκει στην οικογένεια των χάλκινων πνευστών, όπως η τρομπέτα και το τρομπόνι.</div>
+                        <div class="qa-item"><span class="qa-q">3. Ποιο είναι το σχήμα του Κόρνου;</span> Είναι ένας μακρύς μεταλλικός σωλήνας τυλιγμένος σε κύκλο που καταλήγει σε ένα μεγάλο άνοιγμα σαν χωνί.</div>
+                        <div class="qa-item"><span class="qa-q">4. Πώς ονομάζεται το μεγάλο άνοιγμα στο τέλος του οργάνου;</span> Ονομάζεται «καμπάνα» και από εκεί βγαίνει ο ήχος προς τα έξω.</div>
+                        <div class="qa-item"><span class="qa-q">5. Πώς βγάζει ήχο ο μουσικός;</span> Ο μουσικός ακουμπά τα χείλη του στο επιστόμιο και τα κάνει να τρέμουν (να δονούνται) καθώς φυσάει αέρα.</div>
+                        <div class="qa-item"><span class="qa-q">6. Τι σχήμα έχει το επιστόμιο του Κόρνου;</span> Το επιστόμιό του έχει σχήμα βαθιού χωνιού, που βοηθάει στον γλυκό και ιδιαίτερο ήχο του.</div>
+                        <div class="qa-item"><span class="qa-q">7. Γιατί το Κόρνο θεωρείται «δύσκολο» όργανο;</span> Επειδή οι νότες του είναι πολύ κοντά η μία στην άλλη και χρειάζεται μεγάλη ακρίβεια στα χείλη.</div>
+                        <div class="qa-item"><span class="qa-q">8. Τι κάνει ο μουσικός με το δεξί του χέρι;</span> Ο κορνίστας κρατάει το δεξί του χέρι μέσα στην καμπάνα για να ελέγχει τον ήχο και να στηρίζει το βάρος.</div>
+                        <div class="qa-item"><span class="qa-q">9. Με ποιο χέρι πατάει ο μουσικός τα κουμπιά;</span> Στο Κόρνο, ο μουσικός πατάει τα κουμπιά (τις βαλβίδες) με το αριστερό του χέρι.</div>
+                        <div class="qa-item"><span class="qa-q">10. Πόσο μακρύς είναι ο σωλήνας του αν τον ξετυλίγαμε;</span> Ο σωλήνας του είναι περίπου 4 μέτρα μακρύς, αλλά είναι τυλιγμένος για να κρατιέται εύκολα.</div>
+                        <div class="qa-item"><span class="qa-q">11. Πού χρησιμοποιούσαν το Κόρνο πριν μπει στην ορχήστρα;</span> Το χρησιμοποιούσαν στο κυνήγι και στο δάσος για να δίνουν σήματα από μακριά, επειδή ο ήχος του ακούγεται σε μεγάλη απόσταση.</div>
+                        <div class="qa-item"><span class="qa-q">12. Τι ήχο μπορεί να βγάλει το Κόρνο;</span> Μπορεί να βγάλει ήχο ηρωικό και δυνατό, αλλά και πολύ απαλό και παραμυθένιο.</div>
+                        <div class="qa-item"><span class="qa-q">13. Πώς ονομάζεται ο μουσικός που παίζει αυτό το όργανο;</span> Ονομάζεται κορνίστας.</div>
+                        <div class="qa-item"><span class="qa-q">14. Γιατί οι συνθέτες ταινιών αγαπούν το Κόρνο;</span> Γιατί ο ήχος του θυμίζει περιπέτεια, δάση, ιππότες και μεγάλους ήρωες.</div>
+                        <div class="qa-item"><span class="qa-q">15. Χρειάζεται το Κόρνο καθάρισμα;</span> Ναι, οι μουσικοί πρέπει να το φροντίζουν συχνά και να λαδώνουν τα κουμπιά του για να κινούνται γρήγορα και αθόρυβα.</div>
+                    </div>`
+            }
+        };
+
+        function stopEverything() {
+            if(currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+            document.getElementById('instrumentVideo').pause();
+            document.getElementById('main-video-frame').style.display = 'none';
+            const rVid = document.getElementById('repVideoPlayer');
+            rVid.pause(); rVid.src = "";
+            document.getElementById('rep-video-container').style.display = 'none';
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function openMenu(ins) {
+            const papyros = document.getElementById('papyros-obj');
+            if (selectedInstrument === ins && papyros.style.display === 'block') {
+                closeEverything();
+                return;
+            }
+            stopEverything();
+            selectedInstrument = ins;
+            papyrosSfx.play();
+            papyros.style.display = 'block';
+            document.querySelectorAll('.menu-btn').forEach(b => b.style.display = 'block');
+        }
+
+        function closeEverything() {
+            stopEverything();
+            selectedInstrument = "";
+            document.getElementById('papyros-obj').style.display = 'none';
+            document.querySelectorAll('.menu-btn').forEach(b => b.style.display = 'none');
+        }
+
+        function openVideoFrame() { 
+            stopEverything(); 
+            const vid = document.getElementById('instrumentVideo');
+            vid.src = instrumentData[selectedInstrument].video;
+            document.getElementById('main-video-frame').style.display = 'block'; 
+            vid.play(); 
+        }
+
+        function toggleInstrumentSound() { 
+            stopEverything(); 
+            currentAudio = new Audio(instrumentData[selectedInstrument].sound);
+            currentAudio.play(); 
+        }
+
+        function showInfo() { 
+            stopEverything(); 
+            const data = instrumentData[selectedInstrument];
+            document.getElementById('info-title').innerText = data.name;
+            document.getElementById('info-text').innerHTML = data.info;
+            document.getElementById('qa-text').innerHTML = data.qa;
+            document.getElementById('info-overlay').style.display = 'block'; 
+            toggleTab('info');
+        }
+
+        function closeInfo() { document.getElementById('info-overlay').style.display = 'none'; stopEverything(); }
+
+        function toggleTab(tab) {
+            document.getElementById('info-text').style.display = (tab === 'info') ? 'block' : 'none';
+            document.getElementById('qa-text').style.display = (tab === 'qa') ? 'block' : 'none';
+            document.getElementById('btn-info').classList.toggle('inactive', tab !== 'info');
+            document.getElementById('btn-qa').classList.toggle('inactive', tab !== 'qa');
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const activeId = document.getElementById('btn-info').classList.contains('inactive') ? 'qa-text' : 'info-text';
+                const utterance = new SpeechSynthesisUtterance(document.getElementById(activeId).innerText);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+
+        function openRepertorio() { 
+            stopEverything(); 
+            const data = instrumentData[selectedInstrument];
+            const list = document.getElementById('rep-links-list');
+            list.innerHTML = "";
+            if(data.repertorio.length > 0) {
+                data.repertorio.forEach(item => {
+                    list.innerHTML += `<li><a onclick="playRepVideo('${item.file.replace(/'/g, "\\'")}')">${item.title}</a></li>`;
+                });
+                document.getElementById('repertorio-overlay').style.display = 'flex'; 
+            }
+        }
+
+        function closeRepertorioMenu() { document.getElementById('repertorio-overlay').style.display = 'none'; }
+        
+        function playRepVideo(fileName) {
+            stopEverything();
+            document.getElementById('repVideoPlayer').src = fileName; 
+            document.getElementById('rep-video-container').style.display = 'flex';
+            document.getElementById('repVideoPlayer').play();
+        }
+
+        function closeRepVideo() { stopEverything(); document.getElementById('repertorio-overlay').style.display = 'flex'; }
+    </script>
+</body>
+</html>

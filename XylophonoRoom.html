@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Ξυλόφωνου</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        /* Φόντο Δωματίου */
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: url('ROOMS/XYLOPHONO/xylophono.jpg'); 
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            z-index: -2;
+        }
+
+        /* Το Όργανο - ΤΕΛΙΚΕΣ ΣΥΝΤΕΤΑΓΜΕΝΕΣ */
+        #instrument-obj { 
+            position: absolute; 
+            top: 798px; 
+            left: 1537px; 
+            width: 380px; 
+            transform: rotate(0deg);
+            cursor: pointer; 
+            z-index: 5; 
+            transition: transform 0.2s; 
+        }
+        #instrument-obj:hover { transform: rotate(0deg) scale(1.05); }
+
+        /* Μενού Πάπυρος */
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; }
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* ΠΕΤΡΙΝΟ ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.85); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 85%; max-width: 950px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #3a3a3a, #4a4a4a); 
+            padding: 40px; border-radius: 5px; border: 10px solid #222; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #555; border: 2px solid #777; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.2rem; }
+        .tab-btn:not(.inactive) { background: #8b0000; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.4rem; line-height: 1.6; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 15px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .qa-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; border-left: 4px solid gold; font-size: 1.3rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; font-size: 1.4rem; }
+        
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+
+        /* REPERTORIO OVERLAY (R) */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 850px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 150px; cursor: pointer; z-index: 10001; }
+        
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 70%; margin-top: 180px; z-index: 10002; }
+        .rep-links li { margin: 15px 0; border-bottom: 1px dashed rgba(74, 44, 15, 0.3); padding-bottom: 5px; }
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.25rem; cursor: pointer; display: block; transition: 0.2s; }
+        .rep-links a:hover { color: #8b0000; transform: scale(1.03); }
+
+        /* VIDEO CONTAINERS */
+        #main-video-frame, #rep-video-container {
+            position: absolute; top: 150px; left: 600px; width: 600px; 
+            display: none; z-index: 20000; background: #000; 
+            border: 4px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        /* Style για το full screen rep player */
+        #rep-video-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; border: none; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.95); }
+        #repVideoPlayer { width: 80%; max-height: 80%; border: 3px solid gold; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; }
+        #instrumentVideo { width: 100%; display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    
+    <img src="photos/Xylophone.png" id="instrument-obj" onclick="toggleMenu()">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleInstrumentSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <video id="instrumentVideo" controls src="instrument/Xylophone.mp4"></video>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger" onclick="closeRepertorioMenu()"></div>
+            <ul class="rep-links">
+                <li><a onclick="playRepVideo('Repertorio/XYLOPHONO/_Xylophonia_ by Joe Green, arr. Bob Becker, Micah York (soloist), SFA Percussion Ensemble.mp4')">J. Green: Xylophonia (SFA Ensemble)</a></li>
+                <li><a onclick="playRepVideo('Repertorio/XYLOPHONO/Floyd Werle (arr. Randy Eyles) _The Golden Age Of The Xylophone_ _ Kammerkonzert vom 15.6.2016.mp4')">F. Werle: The Golden Age of Xylophone</a></li>
+                <li><a onclick="playRepVideo('Repertorio/XYLOPHONO/Marianna Bednarska (xylophone) plays Csardas by V. Monti.mp4')">V. Monti: Csardas (M. Bednarska)</a></li>
+                <li><a onclick="playRepVideo('Repertorio/XYLOPHONO/Saint-Saλns_ Carnival of the Animals_ XII. Fossils.mp4')">C. Saint-Saëns: Fossils (Carnival of Animals)</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">×</span>
+        <video id="repVideoPlayer" controls></video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            <h1 style="color:gold; text-align:center; font-size: 2.5rem;">ΞΥΛΟΦΩΝΟ</h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="info-text">
+                <ul class="info-list">
+                    <li>Το ξυλόφωνο είναι ένα μουσικό όργανο που ανήκει στην οικογένεια των κρουστών.</li>
+                    <li>Το όνομα του προέρχεται από τις ελληνικές λέξεις «ξύλο» και «φωνή».</li>
+                    <li>Αποτελείται από ξύλινες πλάκες, τις οποίες χτυπάμε με ειδικά μπαστουνάκια που ονομάζονται μπαγκέτες.</li>
+                    <li>Κάθε ξύλινη πλάκα έχει διαφορετικό μήκος για να βγάζει και διαφορετική νότα.</li>
+                    <li>Οι πλάκες του είναι τοποθετημένες στη σειρά, ακριβώς όπως τα πλήκτρα ενός πιάνου.</li>
+                    <li>Κάτω από κάθε πλάκα υπάρχουν σωλήνες που βοηθούν τον ήχο να ακούγεται πιο δυνατά.</li>
+                    <li>Επειδή ο ήχος του είναι ξερός και κοφτός, οι συνθέτες τον χρησιμοποιούν συχνά για να μιμηθούν τον ήχο από κόκαλα σκελετού που τρίζουν.</li>
+                </ul>
+            </div>
+
+            <div id="qa-text" style="display:none;">
+                <div class="qa-grid">
+                    <div class="qa-item"><span class="qa-q">1. Τι σημαίνει το όνομα «ξυλόφωνο»;</span> Το όνομά του προέρχεται από τις ελληνικές λέξεις «ξύλο» και «φωνή», που σημαίνει «ήχος από ξύλο».</div>
+                    <div class="qa-item"><span class="qa-q">2. Σε ποια οικογένεια μουσικών οργάνων ανήκει;</span> Ανήκει στην οικογένεια των κρουστών οργάνων.</div>
+                    <div class="qa-item"><span class="qa-q">3. Από τι είναι φτιαγμένες οι πλάκες του;</span> Οι πλάκες κατασκευάζονται από σκληρό ξύλο, όπως η τριανταφυλλιά, ή από ειδικά συνθετικά υλικά.</div>
+                    <div class="qa-item"><span class="qa-q">4. Πώς είναι τοποθετημένες οι πλάκες πάνω στο όργανο;</span> Είναι τοποθετημένες στη σειρά, ακριβώς όπως τα πλήκτρα ενός πιάνου.</div>
+                    <div class="qa-item"><span class="qa-q">5. Με τι χτυπάμε τις πλάκες για να βγάλουν ήχο;</span> Χρησιμοποιούμε ειδικά μπαστουνάκια που ονομάζονται μπαγκέτες.</div>
+                    <div class="qa-item"><span class="qa-q">6. Πώς λέγονται οι σωλήνες που κρέμονται κάτω από τις πλάκες;</span> Αυτοί οι σωλήνες ονομάζονται αντηχεία.</div>
+                    <div class="qa-item"><span class="qa-q">7. Τι δουλειά κάνουν τα αντηχεία;</span> Βοηθούν τον ήχο να ακούγεται πιο δυνατά και να διαρκεί περισσότερο.</div>
+                    <div class="qa-item"><span class="qa-q">8. Τι είδους ήχο έχει το ξυλόφωνο;</span> Ο ήχος του είναι λαμπερός, κοφτός και διαπεραστικός.</div>
+                    <div class="qa-item"><span class="qa-q">9. Τι προσπαθούν να μιμηθούν οι μουσικοί με τον ήχο του;</span> Συχνά τον χρησιμοποιούν για να μιμηθούν τον ήχο από κόκαλα σκελετού που τρίζουν.</div>
+                    <div class="qa-item"><span class="qa-q">10. Από πού ξεκίνησε το ξυλόφωνο;</span> Οι ρίζες του βρίσκονται στην Αφρική και την Ασία.</div>
+                    <div class="qa-item"><span class="qa-q">11.Γιατί οι πλάκες έχουν διαφορετικά μεγέθη;</span> Επειδή κάθε μήκος πλάκας βγάζει και μια διαφορετική μουσική νότα.</div>
+                    <div class="qa-item"><span class="qa-q">12. Μπορούμε να παίζουμε ξυλόφωνο στη βροχή;</span> Όχι, γιατί η υγρασία μπορεί να καταστρέψει το ξύλο και να αλλάξει τον ήχο του.</div>
+                    <div class="qa-item"><span class="qa-q">13. Πώς πρέπει να καθαρίζουμε τις πλάκες;</span> Πρέπει να τις σκουπίζουμε απαλά με ένα στεγνό και μαλακό πανί.</div>
+                    <div class="qa-item"><span class="qa-q">14. Είναι μεγαλύτερο ή μικρότερο από τη μαρίμπα;</span> Το ξυλόφωνο είναι μικρότερο και έχει πιο ψηλό ήχο σε σχέση με τη μαρίμπα.</div>
+                    <div class="qa-item"><span class="qa-q">15. Πόσες μπαγκέτες χρησιμοποιεί ένας παίκτης;</span> Συνήθως χρησιμοποιεί δύο, αλλά οι έμπειροι παίκτες μπορούν να κρατούν μέχρι και τέσσερις.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const instrumentAudio = new Audio('sounds/INSTRUMENTS/Xylophone.m4a');
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        function stopEverything() {
+            instrumentAudio.pause(); instrumentAudio.currentTime = 0;
+            const iVid = document.getElementById('instrumentVideo');
+            if(iVid) iVid.pause();
+            document.getElementById('main-video-frame').style.display = 'none';
+            
+            const rVid = document.getElementById('repVideoPlayer');
+            if(rVid) { rVid.pause(); rVid.src = ""; }
+            document.getElementById('rep-video-container').style.display = 'none';
+
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleMenu() {
+            const papyros = document.getElementById('papyros-obj');
+            const btns = document.querySelectorAll('.menu-btn');
+            papyrosSfx.play();
+            if (papyros.style.display === 'block') { 
+                stopEverything(); 
+                papyros.style.display = 'none'; 
+                btns.forEach(b => b.style.display = 'none'); 
+            } else { 
+                papyros.style.display = 'block'; 
+                btns.forEach(b => b.style.display = 'block'); 
+            }
+        }
+
+        function openVideoFrame() { 
+            stopEverything(); 
+            document.getElementById('main-video-frame').style.display = 'block'; 
+            document.getElementById('instrumentVideo').play(); 
+        }
+
+        function toggleInstrumentSound() { 
+            const wasPlaying = !instrumentAudio.paused; 
+            stopEverything(); 
+            if (!wasPlaying) instrumentAudio.play(); 
+        }
+
+        function showInfo() { 
+            stopEverything(); 
+            document.getElementById('info-overlay').style.display = 'block'; 
+        }
+
+        function closeInfo() { 
+            stopEverything(); 
+            document.getElementById('info-overlay').style.display = 'none'; 
+        }
+
+        // Λειτουργίες Ρεπερτορίου (R)
+        function openRepertorio() {
+            stopEverything();
+            document.getElementById('repertorio-overlay').style.display = 'flex';
+        }
+
+        function closeRepertorioMenu() {
+            document.getElementById('repertorio-overlay').style.display = 'none';
+        }
+
+        function playRepVideo(videoPath) {
+            document.getElementById('repertorio-overlay').style.display = 'none';
+            const container = document.getElementById('rep-video-container');
+            const player = document.getElementById('repVideoPlayer');
+            player.src = videoPath;
+            container.style.display = 'flex';
+            player.play();
+        }
+
+        function closeRepVideo() {
+            stopEverything();
+            document.getElementById('repertorio-overlay').style.display = 'flex';
+        }
+
+        function toggleTab(tab) {
+            document.getElementById('info-text').style.display = (tab === 'info') ? 'block' : 'none';
+            document.getElementById('qa-text').style.display = (tab === 'qa') ? 'block' : 'none';
+            document.getElementById('btn-info').classList.toggle('inactive', tab !== 'info');
+            document.getElementById('btn-qa').classList.toggle('inactive', tab !== 'qa');
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const activeId = document.getElementById('btn-info').classList.contains('inactive') ? 'qa-text' : 'info-text';
+                const utterance = new SpeechSynthesisUtterance(document.getElementById(activeId).innerText);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+    </script>
+</body>
+</html>

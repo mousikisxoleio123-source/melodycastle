@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Σαξοφώνου</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        /* Φόντο Δωματίου Σαξοφώνου */
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background-image: url('ROOMS/SAXOPHONO/Saxophono.jpg'); 
+            background-size: cover; background-position: center; z-index: -2; 
+        }
+
+        /* Το Σαξόφωνο */
+        #sax-obj {
+            position: absolute;
+            top:750px; left: 500px; width: 350px; 
+            cursor: pointer; z-index: 5; transition: transform 0.2s;
+        }
+        #sax-obj:hover { transform: scale(1.05); }
+
+        /* Μενού Πάπυρος */
+        #papyros-obj {
+            position: absolute;
+            top: 31px; left: 20px; width: 510px;
+            z-index: 10; display: none; 
+        }
+
+        .menu-btn {
+            position: absolute; display: none; 
+            z-index: 20; cursor: pointer; transition: 0.2s;
+        }
+
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* Πλαίσιο Βίντεο */
+        #video-frame {
+            position: absolute;
+            top: 13%; left: 35%; 
+            width: 820px; height: 480px; 
+            display: none; z-index: 30;
+            border-radius: 8px; overflow: hidden;
+            border: 5px solid #333;
+        }
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        #close-vid-frame {
+            position: absolute; top: 10px; right: 10px;
+            color: white; background: rgba(0,0,0,0.7);
+            border: 2px solid white; cursor: pointer; border-radius: 50%; z-index: 31;
+            width: 40px; height: 40px; font-weight: bold;
+        }
+
+        /* --- ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ (INFO OVERLAY) --- */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.9); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 85%; max-width: 950px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #2c3e50, #000); 
+            padding: 40px; border-radius: 15px; border: 8px solid #444; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #333; border: 2px solid #555; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.2rem; }
+        .tab-btn:not(.inactive) { background: #d4af37; border-color: gold; color: #000; box-shadow: 0 0 15px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.3rem; line-height: 1.6; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 12px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .qa-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; border-left: 5px solid gold; font-size: 1.2rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; margin-bottom: 5px; }
+        
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+        
+        .type-box { background: rgba(212, 175, 55, 0.1); border: 1px solid gold; padding: 15px; margin-top: 20px; border-radius: 10px; }
+        .type-title { color: gold; font-weight: bold; font-size: 1.4rem; border-bottom: 1px solid gold; margin-bottom: 10px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+
+    <img src="photos/Saxophone.png" id="sax-obj" onclick="toggleMenu()">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleSaxSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn">
+
+    <div id="video-frame">
+        <button id="close-vid-frame" onclick="stopEverything()">X</button>
+        <video id="saxVideo" controls>
+            <source src="instrument/Saxophone.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+
+            <h1 style="color:gold; text-align:center; font-size: 2.5rem; margin-top: 0;">ΣΑΞΟΦΩΝΟ</h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="info-text">
+                <ul class="info-list">
+                    <li><b>Ο εφευρέτης:</b> Το σχεδίασε ο Αντόλφ Σαξ (Adolphe Sax) από το Βέλγιο το 1846. Ήθελε ένα όργανο δυνατό σαν τα χάλκινα, αλλά ευέλικτο σαν τα ξύλινα.</li>
+                    <li><b>Το όνομά του:</b> Προέρχεται από το επίθετο του δημιουργού (Sax) και τη λέξη «φωνή». Σημαίνει «η φωνή του Σαξ».</li>
+                    <li><b>Πού το ακούμε:</b> Είναι το «αστέρι» της Jazz, αλλά το συναντάμε και στην ποπ, σε παρελάσεις και κλασικές ορχήστρες.</li>
+                    <li><b>Το σώμα:</b> Φτιαγμένο κυρίως από ορείχαλκο, γι’ αυτό γυαλίζει σαν χρυσό ή ασήμι.</li>
+                    <li><b>Το επιστόμιο:</b> Το εξάρτημα στην άκρη όπου ο μουσικός τοποθετεί το στόμα του.</li>
+                    <li><b>Το καλάμι:</b> Μια μικρή ξύλινη λεπίδα που δένεται στο επιστόμιο. Είναι το πιο σημαντικό μέρος για την παραγωγή του ήχου.</li>
+                    <li><b>Τα κλειδιά:</b> Τα κουμπιά που πατάει ο μουσικός για να αλλάζει τις νότες.</li>
+                    <li><b>Η δόνηση:</b> Ο αέρας κάνει το ξύλινο καλάμι να δονείται πολύ γρήγορα, δημιουργώντας τον ήχο.</li>
+                    <li><b>Η οικογένεια:</b> Ανήκει στα <b>ξύλινα πνευστά</b>, γιατί ο ήχος του παράγεται από το ξύλινο καλάμι, παρόλο που είναι μεταλλικό!</li>
+                </ul>
+
+                <div class="type-box">
+                    <span class="type-title">Μεγέθη Σαξοφώνου:</span>
+                    <ul class="info-list" style="font-size: 1.1rem;">
+                        <li><b>Άλτο:</b> Το πιο κοινό για αρχάριους και παιδιά, γιατί έχει βολικό μέγεθος.</li>
+                        <li><b>Τενόρο:</b> Λίγο μεγαλύτερο, με πιο βαθύ και ζεστό ήχο.</li>
+                        <li><b>Σοπράνο:</b> Μικρό και συχνά ίσιο (σαν φλογέρα), με πολύ ψιλό ήχο.</li>
+                        <li><b>Βαρύτονο:</b> Πολύ μεγάλο και βαρύ, με πολύ χαμηλές και δυνατές νότες.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="qa-text" style="display:none;">
+                <div class="qa-grid">
+                    <div class="qa-item"><span class="qa-q">1. Ποιος είναι ο εφευρέτης του σαξοφώνου;</span> Ο Αντόλφ Σαξ, ένας Βέλγος κατασκευαστής οργάνων που το παρουσίασε το 1846.</div>
+                    <div class="qa-item"><span class="qa-q">2. Σε ποια οικογένεια οργάνων ανήκει το σαξόφωνο;</span> Ανήκει στα ξύλινα πνευστά, παρόλο που το σώμα του είναι μεταλλικό.</div>
+                    <div class="qa-item"><span class="qa-q">3. Γιατί θεωρείται ξύλινο πνευστό αφού είναι μεταλλικό;</span> Επειδή ο ήχος του παράγεται από τη δόνηση ενός ξύλινου καλαμιού που βρίσκεται στο επιστόμιο.</div>
+                    <div class="qa-item"><span class="qa-q">4. Τι είναι το «καλάμι» στο σαξόφωνο;</span> Είναι μια λεπτή φλούδα από ειδικό ξύλο που τρέμει όταν φυσάμε, δημιουργώντας έτσι τον ήχο.</div>
+                    <div class="qa-item"><span class="qa-q">5. Πώς αλλάζει ο μουσικός τις νότες;</span> Πατώντας τα «κλειδιά» (τα κουμπιά του οργάνου), τα οποία κλείνουν ή ανοίγουν τρύπες κατά μήκος του σώματός του.</div>
+                    <div class="qa-item"><span class="qa-q">6. Ποιο είναι το πιο συνηθισμένο σαξόφωνο για έναν μαθητή;</span> Το Άλτο σαξόφωνο, γιατί έχει το κατάλληλο μέγεθος και βάρος για τα παιδιά.</div>
+                    <div class="qa-item"><span class="qa-q">7. Σε ποιο είδος μουσικής ακούμε πιο συχνά το σαξόφωνο;</span> Είναι το βασικό όργανο της Τζαζ (Jazz), αλλά το ακούμε πολύ και στην Ποπ και τη Ροκ μουσική.</div>
+                    <div class="qa-item"><span class="qa-q">8. Υπάρχει σαξόφωνο που να είναι ίσιο σαν φλογέρα;</span> Ναι, το Σοπράνο σαξόφωνο είναι συνήθως ίσιο και έχει πολύ ψιλό και γλυκό ήχο.</div>
+                    <div class="qa-item"><span class="qa-q">9. Ποιο είναι το μεγαλύτερο και πιο βαρύ σαξόφωνο;</span> Το Βαρύτονο σαξόφωνο, το οποίο έχει πολύ χαμηλές και δυνατές νότες.</div>
+                    <div class="qa-item"><span class="qa-q">10. Πώς ονομάζεται το μέρος του οργάνου όπου βάζει το στόμα του ο μουσικός;</span> Ονομάζεται επιστόμιο.</div>
+                    <div class="qa-item"><span class="qa-q">11. Είναι το σαξόφωνο ένα «παλιό» ή «νέο» όργανο;</span> Θεωρείται σχετικά νέο όργανο, αφού μετράει λιγότερα από 200 χρόνια ζωής.</div>
+                    <div class="qa-item"><span class="qa-q">12. Χρειάζεται πολύς αέρας για να παίξει κανείς σαξόφωνο;</span> Χρειάζεται σωστή τεχνική αναπνοής, αλλά με λίγη εξάσκηση ακόμα και μικρά παιδιά μπορούν να βγάλουν υπέροχο ήχο.</div>
+                    <div class="qa-item"><span class="qa-q">13. Από τι μέταλλο είναι συνήθως φτιαγμένο;</span> Είναι φτιαγμένο από ορείχαλκο, ο οποίος είναι ένα μείγμα χαλκού και ψευδαργύρου.</div>
+                    <div class="qa-item"><span class="qa-q">14. Γιατί οι μουσικοί βάζουν το σαξόφωνο σε έναν ιμάντα στον λαιμό τους;</span> Επειδή το όργανο είναι αρκετά βαρύ, ο ιμάντας βοηθάει στο να κρατιέται με ασφάλεια.</div>
+                    <div class="qa-item"><span class="qa-q">15. Μπορούμε να ακούσουμε σαξόφωνο σε παρελάσεις;</span> Φυσικά! Είναι ένα από τα πιο σημαντικά όργανα στις φιλαρμονικές ορχήστρες.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const saxAudio = new Audio('sounds/INSTRUMENTS/Saxophone.m4a');
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const videoElement = document.getElementById('saxVideo');
+        const videoFrame = document.getElementById('video-frame');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        function stopEverything() {
+            saxAudio.pause();
+            saxAudio.currentTime = 0;
+            videoElement.pause();
+            videoElement.currentTime = 0;
+            videoFrame.style.display = 'none';
+            synth.cancel();
+            isSpeaking = false;
+        }
+
+        function toggleMenu() {
+            const papyros = document.getElementById('papyros-obj');
+            const btns = document.querySelectorAll('.menu-btn');
+            papyrosSfx.play();
+            const isVisible = papyros.style.display === 'block';
+            if (isVisible) {
+                stopEverything();
+                papyros.style.display = 'none';
+                btns.forEach(b => b.style.display = 'none');
+            } else {
+                papyros.style.display = 'block';
+                btns.forEach(b => b.style.display = 'block');
+            }
+        }
+
+        function toggleSaxSound() {
+            const isPlaying = !saxAudio.paused;
+            stopEverything(); 
+            if (!isPlaying) saxAudio.play();
+        }
+
+        function openVideoFrame() {
+            stopEverything();
+            videoFrame.style.display = 'block';
+            videoElement.play();
+        }
+
+        function showInfo() {
+            stopEverything();
+            document.getElementById('info-overlay').style.display = 'block';
+        }
+
+        function closeInfo() {
+            stopEverything();
+            document.getElementById('info-overlay').style.display = 'none';
+        }
+
+        function toggleTab(tab) {
+            const infoText = document.getElementById('info-text');
+            const qaText = document.getElementById('qa-text');
+            const btnInfo = document.getElementById('btn-info');
+            const btnQa = document.getElementById('btn-qa');
+
+            if (tab === 'info') {
+                infoText.style.display = 'block';
+                qaText.style.display = 'none';
+                btnInfo.classList.remove('inactive');
+                btnQa.classList.add('inactive');
+            } else {
+                infoText.style.display = 'none';
+                qaText.style.display = 'block';
+                btnInfo.classList.add('inactive');
+                btnQa.classList.remove('inactive');
+            }
+            synth.cancel();
+            isSpeaking = false;
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) {
+                synth.cancel();
+                isSpeaking = false;
+            } else {
+                const activeTab = document.getElementById('btn-info').classList.contains('inactive') ? 'qa-text' : 'info-text';
+                const textToRead = document.getElementById(activeTab).innerText;
+                const utterance = new SpeechSynthesisUtterance(textToRead);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+    </script>
+
+</body>
+</html>

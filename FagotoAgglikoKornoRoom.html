@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Φαγκότου & Αγγλικού Κόρνου</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: url('ROOMS/ENGLISH CORN FAGOTO/English corn fagoto.jpg'); 
+            background-size: cover; background-position: center; z-index: -2;
+        }
+
+        .instrument { position: absolute; cursor: pointer; z-index: 5; transition: transform 0.2s; }
+
+        /* ΘΕΣΕΙΣ ΟΡΓΑΝΩΝ */
+        #fagotto-obj { top: 565px; left: 1649px; width: 85px; transform: rotate(90deg); }
+        #fagotto-obj:hover { transform: rotate(90deg) scale(1.05); }
+
+        #englishhorn-obj { top: 620px; left: 1925px; width: 250px; transform: rotate(60deg); }
+        #englishhorn-obj:hover { transform: rotate(60deg) scale(1.05); }
+
+        /* ΜΕΝΟΥ ΠΑΠΥΡΟΣ */
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; }
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.9); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 90%; max-width: 1000px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #2c2c2c, #444); 
+            padding: 40px; border-radius: 5px; border: 10px solid #222; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #555; border: 2px solid #777; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.2rem; }
+        .tab-btn:not(.inactive) { background: #8b0000; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.25rem; line-height: 1.5; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 10px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .qa-item { background: rgba(0,0,0,0.4); padding: 18px; border-radius: 5px; border-left: 5px solid gold; font-size: 1.2rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; margin-bottom: 5px; font-size: 1.3rem; }
+        
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+
+        #main-video-frame { position: absolute; top: 150px; left: 600px; width: 600px; display: none; z-index: 100; background: #000; border: 4px solid #333; }
+        #instrumentVideo { width: 100%; display: block; }
+
+        /* REPERTORIO OVERLAY */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 850px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 150px; cursor: pointer; z-index: 10001; }
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 75%; margin-top: 170px; z-index: 10002; }
+        .rep-links li { margin: 0; padding: 8px 0; border-bottom: 1px dashed rgba(74, 44, 15, 0.3); }
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.3rem; cursor: pointer; display: block; transition: 0.2s; line-height: 1.2; }
+        .rep-links a:hover { color: #8b0000; transform: scale(1.03); }
+
+        #rep-video-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 20000; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; 
+        }
+        #repVideoPlayer { width: 85%; max-height: 80%; border: 3px solid gold; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    
+    <img src="photos/fagotto.png" id="fagotto-obj" class="instrument" onclick="toggleMenu('fagotto')">
+    <img src="photos/English horn.png" id="englishhorn-obj" class="instrument" onclick="toggleMenu('englishhorn')">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleInstrumentSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <video id="instrumentVideo" controls src=""></video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            
+            <h1 id="info-title" style="color:gold; text-align:center; font-size: 2.5rem;"></h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="content-fagotto" class="instr-content" style="display:none;">
+                <div class="info-text-box">
+                    <ul class="info-list">
+                        <li><b>Τι είναι:</b> Το φαγκότο είναι ένα μεγάλο ξύλινο πνευστό όργανο που ανήκει στην οικογένεια των ξύλινων πνευστών.</li>
+                        <li><b>Πώς παίζεται:</b> Ο μουσικός φυσάει μέσα σε ένα διπλό καλάμι που είναι δύο λεπτά κομμάτια ξύλου ενωμένα.</li>
+                        <li><b>Το σχήμα του:</b> Αποτελείται από τέσσερα ξύλινα κομμάτια και έναν μεταλλικό σωλήνα "S" που λέγεται "φαβορίτα".</li>
+                        <li><b>Το όνομά του:</b> «Fagotto» στα ιταλικά σημαίνει «δέσμη από ξύλα».</li>
+                        <li><b>Ο ήχος του:</b> Βαθύς, γεμάτος και ζεστός. Μπορεί να ακουστεί γλυκό ή πολύ αστείο.</li>
+                        <li><b>Ο Πέτρος και ο Λύκος:</b> Αντιπροσωπεύει τον ρόλο του παππού.</li>
+                        <li><b>Ο «Κλόουν της Ορχήστρας»:</b> Λόγω των γρήγορων και αστείων ήχων του.</li>
+                    </ul>
+                </div>
+                <div class="qa-text-box" style="display:none;">
+                    <div class="qa-grid">
+                        <div class="qa-item"><span class="qa-q">1. Τι είναι το φαγκότο;</span> Μεγάλο ξύλινο πνευστό μουσικό όργανο.</div>
+                        <div class="qa-item"><span class="qa-q">2. Πόσο ψηλό είναι;</span> Περίπου 1,35 μέτρα.</div>
+                        <div class="qa-item"><span class="qa-q">3. Από τι ξύλο φτιάχνεται;</span> Συνήθως από ξύλο Σφενδάμου.</div>
+                        <div class="qa-item"><span class="qa-q">4. Από πόσα κομμάτια αποτελείται;</span> Τέσσερα ξύλινα μέρη.</div>
+                        <div class="qa-item"><span class="qa-q">5. Τι σημαίνει "fagotto";</span> Δέσμη από ξύλα.</div>
+                        <div class="qa-item"><span class="qa-q">6. Πώς βγάζει ήχο;</span> Με δόνηση σε διπλό καλάμι.</div>
+                        <div class="qa-item"><span class="qa-q">7. Τι είναι η "φαβορίτα";</span> Ο μεταλλικός σωλήνας σε σχήμα "S".</div>
+                        <div class="qa-item"><span class="qa-q">8. Ποιος είναι ο πρόγονος του;</span> Η Ντουλτσιάνα.</div>
+                        <div class="qa-item"><span class="qa-q">9. Ποιο ρόλο έχει στον "Πέτρο και Λύκο";</span> Τον παππού.</div>
+                        <div class="qa-item"><span class="qa-q">10. Ποιο είναι το παρατσούκλι του;</span> Κλόουν της ορχήστρας.</div>
+                        <div class="qa-item"><span class="qa-q">11. Πόσα δάχτυλα χρησιμοποιούνται;</span> Και τα δέκα.</div>
+                        <div class="qa-item"><span class="qa-q">12. Γιατί το καθαρίζουμε;</span> Για να απομακρυνθεί η υγρασία από το ξύλο.</div>
+                        <div class="qa-item"><span class="qa-q">13. Υπάρχει παιδικό φαγκότο;</span> Ναι, λέγεται Fagottino.</div>
+                        <div class="qa-item"><span class="qa-q">14. Τι είδους ήχο έχει;</span> Βαθύ, χαμηλό και ζεστό.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-englishhorn" class="instr-content" style="display:none;">
+                <div class="info-text-box">
+                    <ul class="info-list">
+                        <li><b>Το παράξενο όνομά του:</b> Το όργανο δεν είναι ούτε Αγγλικό, ούτε Κόρνο! Η πιο πιθανή εξήγηση είναι ότι το όνομά του προήλθε από τη γαλλική φράση cor anglé, που σημαίνει «γωνιακό κόρνο», επειδή παλιά το όργανο ήταν λυγισμένο στη μέση σαν γωνία. Με τα χρόνια, η λέξη anglé (γωνιακό) ακουγόταν παρόμοια με τη λέξη anglais (αγγλικό) και έτσι έμεινε το όνομα «Αγγλικό Κόρνο».</li>
+                        <li><b>Η εμφάνισή του:</b> Είναι ένας ξύλινος σωλήνας, μακρύτερος από το όμποε, φτιαγμένος από σκούρο ξύλο εβένου.</li>
+                        <li><b>Η «μπάλα» στην άκρη:</b> Στο κάτω μέρος του καταλήγει σε ένα σχήμα που μοιάζει με αχλάδι ή μικρή μπάλα. Αυτό το σχήμα κάνει τον ήχο του πιο ζεστό και «σκεπτικό».</li>
+                        <li><b>Το λυγισμένο σωληνάκι:</b> Στην κορυφή του έχει ένα μικρό μεταλλικό σωληνάκι (που λέγεται «κρουκ») στο οποίο μπαίνει το καλάμι. Είναι ελαφρώς λυγισμένο για να μπορεί ο μουσικός να φτάνει το όργανο άνετα.</li>
+                        <li><b>Πώς βγαίνει ο ήχος:</b> Ανήκει στα ξύλινα πνευστά. Ο μουσικός φυσάει μέσα σε ένα διπλό καλάμι (δύο λεπτά ξυλάκια δεμένα μαζί) που δονούνται και δημιουργούν τον ήχο.</li>
+                        <li><b>Ο χαρακτήρας του:</b> Ο ήχος του είναι πολύ γλυκός και μελαγχολικός. Οι συνθέτες το λατρεύουν όταν θέλουν να περιγράψουν την ηρεμία της φύσης ή κάποια λυπητερή ιστορία.</li>
+                    </ul>
+                </div>
+                <div class="qa-text-box" style="display:none;">
+                    <div class="qa-grid">
+                        <div class="qa-item"><span class="qa-q">1. Από πού πήρε το όνομά του το Αγγλικό Κόρνο;</span> Προέρχεται από μια παρεξήγηση της γαλλικής λέξης για το «γωνιακό» (anglé), που ακούγεται σχεδόν ίδια με τη λέξη για το «αγγλικό» (anglais).</div>
+                        <div class="qa-item"><span class="qa-q">2. Γιατί το λέμε «Κόρνο» αφού δεν μοιάζει με το γνωστό χάλκινο κόρνο;</span> Επειδή τα πολύ παλιά χρόνια, πριν πάρει τη σημερινή του μορφή, το όργανο ήταν λυγισμένο και θύμιζε λίγο το σχήμα από τα κέρατα των ζώων.</div>
+                        <div class="qa-item"><span class="qa-q">3. Είναι πράγματι από την Αγγλία;</span> Όχι, η καταγωγή του είναι κυρίως από τη Γαλλία και τη Γερμανία.</div>
+                        <div class="qa-item"><span class="qa-q">4. Σε ποια οικογένεια οργάνων ανήκει;</span> Ανήκει στην οικογένεια των ξύλινων πνευστών.</div>
+                        <div class="qa-item"><span class="qa-q">5. Ποιος είναι ο πιο κοντινός του «συγγενής»;</span> Είναι το όμποε, γι' αυτό και οι δύο μουσικοί κάθονται πάντα δίπλα-δίπλα στην ορχήστρα.</div>
+                        <div class="qa-item"><span class="qa-q">6. Τι είναι το «διπλό καλάμι»;</span> Είναι το επιστόμιο του οργάνου, φτιαγμένο από δύο λεπτά κομμάτια ξύλου που τρέμουν όταν φυσάμε ανάμεσά τους.</div>
+                        <div class="qa-item"><span class="qa-q">7. Πώς ξεχωρίζουμε το Αγγλικό Κόρνο από το όμποε με μια ματιά;</span> Από το στρογγυλό σχήμα «αχλαδιού» στην άκρη του και το λυγισμένο μεταλλικό σωληνάκι στην κορυφή.</div>
+                        <div class="qa-item"><span class="qa-q">8. Από τι υλικό είναι φτιαγμένο το σώμα του;</span> Είναι φτιαγμένο από ένα πολύ σκληρό, μαύρο ξύλο που ονομάζεται έβενος.</div>
+                        <div class="qa-item"><span class="qa-q">9. Πώς αλλάζει τις νότες ο μουσικός;</span> Πατάει μεταλλικά κουμπιά (κλειδιά) που κλείνουν τρύπες πάνω στο ξύλινο σώμα του οργάνου.</div>
+                        <div class="qa-item"><span class="qa-q">10. Τι ήχο βγάζει το Αγγλικό Κόρνο;</span> Βγάζει έναν ήχο πολύ ζεστό, βαθύ και εκφραστικό, που μοιάζει λίγο με την ανθρώπινη φωνή.</div>
+                        <div class="qa-item"><span class="qa-q">11. Γιατί οι συνθέτες το χρησιμοποιούν για να δείξουν λύπη ή ηρεμία;</span> Γιατί ο ήχος του είναι πολύ «μαλακός» και δεν τσιρίζει, κάτι που μας κάνει να νιώθουμε ηρεμία ή συγκίνηση.</div>
+                        <div class="qa-item"><span class="qa-q">12. Πού κάθεται ο μουσικός του Αγγλικού Κόρνου στην ορχήστρα;</span> Κάθεται στο κέντρο της ορχήστρας, πίσω από τα φλάουτα και δίπλα στα όμποε.</div>
+                        <div class="qa-item"><span class="qa-q">13. Είναι δύσκολο όργανο για ένα παιδί;</span> Είναι λίγο δύσκολο στην αρχή, γι' αυτό τα παιδιά ξεκινούν συνήθως με το όμποε και μετά πηγαίνουν στο Αγγλικό Κόρνο.</div>
+                        <div class="qa-item"><span class="qa-q">14. Χρειάζεται ειδικό καθάρισμα;</span> Ναι, μετά από κάθε χρήση ο μουσικός πρέπει να περνάει ένα πανάκι από μέσα για να αφαιρεί την υγρασία, ώστε να μην χαλάσει το ξύλο.</div>
+                        <div class="qa-item"><span class="qa-q">15. Μπορεί να παίξει πολύ γρήγορες μελωδίες;</span> Μπορεί, αλλά συνήθως του δίνουν πιο αργές και όμορφες μελωδίες γιατί εκεί αναδεικνύεται ο υπέροχος ήχος του.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger" onclick="closeRepertorioMenu()"></div>
+            <ul class="rep-links" id="rep-list-content"></ul>
+        </div>
+    </div>
+
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">X</span>
+        <video id="repVideoPlayer" controls></video>
+    </div>
+
+    <script>
+        let currentInstrument = ''; 
+        const sounds = {
+            fagotto: new Audio('sounds/INSTRUMENTS/fagotto.m4a'),
+            englishhorn: new Audio('sounds/INSTRUMENTS/English horn.m4a')
+        };
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        const fagottoRepertorio = [
+            { t: "L. Berio - Sequenza XII", f: "Luciano Berio, Sequenza XII per fagotto.mp4", s: 0 },
+            { t: "Vivaldi - Bassoon Concerto", f: "ConcerotBassonvivaldi.mp4", s: 0 },
+            { t: "Mozart - Bassoon Concerto (15:36)", f: "Stage@Seven_ Mozart_ Bassoon Concerto B-flat major K. 191 – Theo Plath _ Elias Grandy.mp4", s: 936 },
+            { t: "Beethoven - Trio (13:00)", f: "[The 19th MPyC] L. v. Beethoven - Trio for Flute, Basson & Piano in G major, WoO 37.mp4", s: 780 }
+        ];
+
+        function stopEverything() {
+            Object.values(sounds).forEach(s => { s.pause(); s.currentTime = 0; });
+            const iVid = document.getElementById('instrumentVideo');
+            if(iVid) iVid.pause();
+            const rVid = document.getElementById('repVideoPlayer');
+            if(rVid) { rVid.pause(); rVid.src = ""; }
+            document.getElementById('main-video-frame').style.display = 'none';
+            document.getElementById('rep-video-container').style.display = 'none';
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleMenu(instr) {
+            const papyros = document.getElementById('papyros-obj');
+            const btns = document.querySelectorAll('.menu-btn');
+            if (papyros.style.display === 'block' && currentInstrument === instr) {
+                stopEverything();
+                papyros.style.display = 'none';
+                btns.forEach(b => b.style.display = 'none');
+                currentInstrument = '';
+            } else {
+                stopEverything();
+                currentInstrument = instr;
+                papyrosSfx.play();
+                papyros.style.display = 'block';
+                btns.forEach(b => b.style.display = 'block');
+            }
+        }
+
+        function openVideoFrame() {
+            stopEverything();
+            const video = document.getElementById('instrumentVideo');
+            video.src = currentInstrument === 'fagotto' ? 'instrument/fagotto.mp4' : 'instrument/English horn.mp4';
+            document.getElementById('main-video-frame').style.display = 'block';
+            video.play();
+        }
+
+        function toggleInstrumentSound() {
+            const wasPlaying = !sounds[currentInstrument].paused;
+            stopEverything();
+            if (!wasPlaying) sounds[currentInstrument].play();
+        }
+
+        function showInfo() {
+            stopEverything();
+            document.getElementById('info-overlay').style.display = 'block';
+            document.querySelectorAll('.instr-content').forEach(c => c.style.display = 'none');
+            document.getElementById('content-' + currentInstrument).style.display = 'block';
+            document.getElementById('info-title').innerText = currentInstrument === 'fagotto' ? 'ΦΑΓΚΟΤΟ' : 'ΑΓΓΛΙΚΟ ΚΟΡΝΟ';
+            toggleTab('info');
+        }
+
+        function closeInfo() { stopEverything(); document.getElementById('info-overlay').style.display = 'none'; }
+
+        function toggleTab(tab) {
+            const currentContent = document.getElementById('content-' + currentInstrument);
+            const infoBox = currentContent.querySelector('.info-text-box');
+            const qaBox = currentContent.querySelector('.qa-text-box');
+            if(tab === 'info') {
+                infoBox.style.display = 'block'; qaBox.style.display = 'none';
+                document.getElementById('btn-info').classList.remove('inactive');
+                document.getElementById('btn-qa').classList.add('inactive');
+            } else {
+                infoBox.style.display = 'none'; qaBox.style.display = 'block';
+                document.getElementById('btn-info').classList.add('inactive');
+                document.getElementById('btn-qa').classList.remove('inactive');
+            }
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function openRepertorio() {
+            if (currentInstrument !== 'fagotto') return;
+            stopEverything();
+            const list = document.getElementById('rep-list-content');
+            list.innerHTML = '';
+            fagottoRepertorio.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a onclick="playRepVideo('${item.f}', ${item.s})">${item.t}</a>`;
+                list.appendChild(li);
+            });
+            document.getElementById('repertorio-overlay').style.display = 'flex';
+        }
+
+        function playRepVideo(fileName, startTime) {
+            stopEverything();
+            const player = document.getElementById('repVideoPlayer');
+            player.src = "Repertorio/FAGOTO/" + fileName;
+            document.getElementById('rep-video-container').style.display = 'flex';
+            player.onloadedmetadata = function() {
+                player.currentTime = startTime;
+                player.play();
+            };
+        }
+
+        function closeRepertorioMenu() { document.getElementById('repertorio-overlay').style.display = 'none'; }
+        function closeRepVideo() { stopEverything(); document.getElementById('repertorio-overlay').style.display = 'flex'; }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const currentContent = document.getElementById('content-' + currentInstrument);
+                const activeBox = document.getElementById('btn-info').classList.contains('inactive') ? 
+                                 currentContent.querySelector('.qa-text-box') : 
+                                 currentContent.querySelector('.info-text-box');
+                const utterance = new SpeechSynthesisUtterance(activeBox.innerText);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+    </script>
+</body>
+</html>

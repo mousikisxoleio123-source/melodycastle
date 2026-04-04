@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Τούμπας - Melody Castle</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Φόντο Δωματίου */
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: url('ROOMS/TUBA/Tuba.jpg'); 
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            z-index: -2;
+        }
+
+        /* Το Όργανο */
+        #instrument-obj { 
+            position: absolute; 
+            top: 250px; 
+            left: 1951px; 
+            width: 450px; 
+            transform: scale(0.60) rotate(81deg);
+            cursor: pointer; 
+            z-index: 5; 
+            transition: transform 0.2s; 
+        }
+        #instrument-obj:hover { transform: scale(0.63) rotate(81deg); }
+
+        /* Μενού Πάπυρος */
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; }
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.85); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 85%; max-width: 1000px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #2c3e50, #000); 
+            padding: 40px; border-radius: 5px; border: 10px solid #222; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #444; border: 2px solid #666; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.1rem; }
+        .tab-btn:not(.inactive) { background: #b8860b; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.3rem; line-height: 1.6; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 15px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .qa-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 5px; border-left: 4px solid gold; font-size: 1.2rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; margin-bottom: 5px; font-size: 1.25rem; }
+        
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 12px 30px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; font-size: 1rem; transition: 0.3s; }
+        .speak-btn:hover { background: gold; color: black; }
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+
+        /* REPERTORIO */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 850px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 150px; cursor: pointer; z-index: 10001; }
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 70%; margin-top: 180px; z-index: 10002; }
+        .rep-links li { margin: 15px 0; border-bottom: 1px dashed rgba(74, 44, 15, 0.3); padding-bottom: 5px; }
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.3rem; cursor: pointer; display: block; transition: 0.2s; }
+        .rep-links a:hover { color: #8b0000; transform: scale(1.05); }
+
+        /* VIDEO CONTAINERS */
+        #main-video-frame {
+            position: absolute; top: 150px; left: 600px; width: 650px; 
+            display: none; z-index: 20000; background: #000; 
+            border: 5px solid #444; box-shadow: 0 0 50px rgba(0,0,0,0.9);
+        }
+        #rep-video-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; border: none; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.98); display: none; z-index: 30000; }
+        #repVideoPlayer { width: 85%; max-height: 80%; border: 3px solid gold; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 60px; color: white; cursor: pointer; }
+        #instrumentVideo { width: 100%; display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    <img src="photos/tuba.png" id="instrument-obj" onclick="toggleMenu()">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleInstrumentSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <video id="instrumentVideo" controls src="instrument/Tuba.mp4"></video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            <h1 style="color:gold; text-align:center; font-size: 2.8rem; text-shadow: 2px 2px #000; margin-bottom:10px;">ΤΟΥΜΠΑ</h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="info-text">
+                <ul class="info-list">
+                    <li>Είναι το μεγαλύτερο μέλος της οικογένειας των χάλκινων πνευστών και είναι φτιαγμένη από μέταλλο (χαλκό).</li>
+                    <li>Έχει έναν πολύ βαθύ, δυνατό και επιβλητικό ήχο που μοιάζει με τη φωνή ενός γίγαντα ή με τον βρυχηθμό ενός ελέφαντα.</li>
+                    <li>Λόγω του μεγάλου μεγέθους της, ο μουσικός πρέπει πάντα να κάθεται σε καρέκλα και να την ακουμπάει στα πόδια του για να παίξει.</li>
+                    <li>Έχει 3 έως 5 βαλβίδες (κουμπιά) που ο μουσικός πατάει με τα δάχτυλα για να αλλάζει τις νότες.</li>
+                    <li>Το επιστόμιό της είναι το μεγαλύτερο από όλα τα χάλκινα πνευστά, μοιάζει με μια μεγάλη μεταλλική κούπα.</li>
+                    <li>Στην ορχήστρα κάθεται πάντα πίσω-πίσω, γιατί ο ήχος της είναι τόσο δυνατός που μπορεί να καλύψει όλα τα άλλα όργανα.</li>
+                    <li>Αν ξετυλίγαμε όλους τους σωλήνες μιας μεγάλης τούμπας, θα είχαν μήκος σχεδόν 5,5 μέτρα!</li>
+                </ul>
+            </div>
+
+            <div id="qa-text" style="display:none;">
+                <div class="qa-grid">
+                    <div class="qa-item"><span class="qa-q">1. Σε ποια οικογένεια οργάνων ανήκει η τούμπα;</span> Ανήκει στα χάλκινων πνευστά.</div>
+                    <div class="qa-item"><span class="qa-q">2. Είναι η τούμπα μεγαλύτερη ή μικρότερη από την τρομπέτα;</span> Είναι πολύ μεγαλύτερη, είναι το μεγαλύτερο χάλκινο πνευστό.</div>
+                    <div class="qa-item"><span class="qa-q">3. Πώς πρέπει να είναι ο μουσικός για να παίξει τούμπα;</span> Πρέπει οπωσδήποτε να κάθεται σε καρέκλα.</div>
+                    <div class="qa-item"><span class="qa-q">4. Τι χρησιμοποιεί ο μουσικός για να αλλάζει τις νότες;</span> Χρησιμοποιεί βαλβίδες (κουμπιά).</div>
+                    <div class="qa-item"><span class="qa-q">5. Πώς είναι ο ήχος της τούμπας;</span> Είναι ο πιο βαθύς, χαμηλός και δυνατός της ορχήστρας.</div>
+                    <div class="qa-item"><span class="qa-q">6. Πώς λέγεται ο μουσικός που παίζει τούμπα;</span> Ονομάζεται τουμπίστας.</div>
+                    <div class="qa-item"><span class="qa-q">7. Πώς λέγεται το μέρος που ακουμπάμε τα χείλη μας;</span> Λέγεται επιστόμιο.</div>
+                    <div class="qa-item"><span class="qa-q">8. Τι πρέπει να κάνουν τα χείλη για να βγει ήχος;</span> Πρέπει να δονούνται ή να τρέμουν πάνω στο επιστόμιο.</div>
+                    <div class="qa-item"><span class="qa-q">9. Από τι υλικό είναι φτιαγμένη;</span> Είναι φτιαγμένη από μέταλλο (χαλκό ή μπρούντζο).</div>
+                    <div class="qa-item"><span class="qa-q">10. Πώς λέγεται το άνοιγμα στο πάνω μέρος από όπου βγαίνει ο ήχος;</span> Λέγεται καμπάνα.</div>
+                    <div class="qa-item"><span class="qa-q">11. Πού κάθεται ο τουμπίστας μέσα στην ορχήστρα;</span> Κάθεται πάντα στις πίσω σειρές.</div>
+                    <div class="qa-item"><span class="qa-q">12. Είναι η τούμπα ελαφρύ όργανο;</span> Όχι, είναι ένα από τα πιο βαριά όργανα και χρειάζεται δύναμη.</div>
+                    <div class="qa-item"><span class="qa-q">13. Υπάρχουν διαφορετικά μεγέθη τούμπας;</span> Ναι, υπάρχουν διάφορα μεγέθη ανάλογα με το πόσο χαμηλό ήχο θέλουμε.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger" onclick="closeRepertorioMenu()"></div>
+            <ul class="rep-links" id="rep-list-container"></ul>
+        </div>
+    </div>
+
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">×</span>
+        <video id="repVideoPlayer" controls></video>
+    </div>
+
+    <script>
+        const instrumentAudio = new Audio('sounds/INSTRUMENTS/Tuba.m4a');
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        const tubaRepertorio = [
+            { t: "Tuba Virtuoso Solo", f: "0-02-05-21bd8788fef7a68cb1e_e614d7b0a781ae.mp4", start: 0 },
+            { t: "Penderecki - Capriccio", f: "Penderecki - Capriccio for Tuba Solo.mp4", start: 0 },
+            { t: "Williams: Tubakonzert", f: "Williams_ Tubakonzert ∙ hr-Sinfonieorchester ∙ Ole Heiland ∙ Tianyi Lu.mp4", start: 896 } // 14:56
+        ];
+
+        function stopEverything() {
+            instrumentAudio.pause(); instrumentAudio.currentTime = 0;
+            const iVid = document.getElementById('instrumentVideo');
+            if(iVid) iVid.pause();
+            const rVid = document.getElementById('repVideoPlayer');
+            if(rVid) { rVid.pause(); rVid.src = ""; }
+            document.getElementById('main-video-frame').style.display = 'none';
+            document.getElementById('rep-video-container').style.display = 'none';
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleMenu() {
+            const papyros = document.getElementById('papyros-obj');
+            const btns = document.querySelectorAll('.menu-btn');
+            papyrosSfx.play();
+            if (papyros.style.display === 'block') { 
+                stopEverything(); 
+                papyros.style.display = 'none'; 
+                btns.forEach(b => b.style.display = 'none'); 
+            } else { 
+                papyros.style.display = 'block'; 
+                btns.forEach(b => b.style.display = 'block'); 
+            }
+        }
+
+        function openVideoFrame() { stopEverything(); document.getElementById('main-video-frame').style.display = 'block'; document.getElementById('instrumentVideo').play(); }
+        function toggleInstrumentSound() { const wasPlaying = !instrumentAudio.paused; stopEverything(); if (!wasPlaying) instrumentAudio.play(); }
+        function showInfo() { stopEverything(); document.getElementById('info-overlay').style.display = 'block'; }
+        function closeInfo() { stopEverything(); document.getElementById('info-overlay').style.display = 'none'; }
+        
+        function openRepertorio() { 
+            stopEverything(); 
+            const list = document.getElementById('rep-list-container');
+            list.innerHTML = '';
+            tubaRepertorio.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a onclick="playRepVideo(${index})">${item.t}</a>`;
+                list.appendChild(li);
+            });
+            document.getElementById('repertorio-overlay').style.display = 'flex'; 
+        }
+
+        function closeRepertorioMenu() { document.getElementById('repertorio-overlay').style.display = 'none'; }
+
+        function playRepVideo(index) {
+            const item = tubaRepertorio[index];
+            document.getElementById('repertorio-overlay').style.display = 'none';
+            const container = document.getElementById('rep-video-container');
+            const player = document.getElementById('repVideoPlayer');
+            player.src = "Repertorio/TUBA/" + item.f;
+            container.style.display = 'flex';
+            player.onloadedmetadata = function() {
+                player.currentTime = item.start;
+                player.play();
+            };
+        }
+
+        function closeRepVideo() { stopEverything(); document.getElementById('repertorio-overlay').style.display = 'flex'; }
+
+        function toggleTab(tab) {
+            document.getElementById('info-text').style.display = (tab === 'info') ? 'block' : 'none';
+            document.getElementById('qa-text').style.display = (tab === 'qa') ? 'block' : 'none';
+            document.getElementById('btn-info').classList.toggle('inactive', tab !== 'info');
+            document.getElementById('btn-qa').classList.toggle('inactive', tab !== 'qa');
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const activeId = document.getElementById('btn-info').classList.contains('inactive') ? 'qa-text' : 'info-text';
+                const utterance = new SpeechSynthesisUtterance(document.getElementById(activeId).innerText);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+    </script>
+</body>
+</html>

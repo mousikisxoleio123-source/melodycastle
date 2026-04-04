@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Κιθάρας - Ενσωματωμένο Βίντεο</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        /* Φόντο Δωματίου */
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background-image: url('ROOMS/KITHARA/kithara.jpg'); 
+            background-size: cover; background-position: center; z-index: -2; 
+        }
+        
+        /* Η Κιθάρα */
+        #guitar-obj { 
+            position: absolute; top: 850px; left: 1500px; width: 380px; 
+            cursor: pointer; z-index: 5; transition: transform 0.2s; 
+        }
+        #guitar-obj:hover { transform: scale(1.05); }
+
+        /* Μενού Πάπυρος */
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; }
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* --- ΠΕΤΡΙΝΟ ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ --- */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.85); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 85%; max-width: 950px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #3a3a3a, #4a4a4a); 
+            padding: 40px; border-radius: 5px; border: 10px solid #222; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #555; border: 2px solid #777; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; }
+        .tab-btn:not(.inactive) { background: #8b0000; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        .info-list { list-style-type: none; padding: 0; font-size: 1.15rem; line-height: 1.6; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 12px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .qa-item { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 5px; border-left: 4px solid gold; font-size: 1.1rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; }
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+        .close-x-info { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; z-index: 20001; }
+
+        /* --- REPERTORIO --- */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 800px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 160px; cursor: pointer; z-index: 10001; }
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 75%; margin-top: 190px; z-index: 10002; }
+        
+        /* ΠΡΟΣΘΗΚΗ ΓΡΑΜΜΩΝ ΣΤΟΝ ΠΑΠΥΡΟ */
+        .rep-links li { 
+            margin: 0; 
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(74, 44, 15, 0.4);
+        }
+        .rep-links li:last-child { border-bottom: none; }
+
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.9rem; cursor: pointer; display: block; }
+        
+        #rep-video-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 20000; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; 
+        }
+        #repVideoPlayer { width: 85%; max-height: 80%; border: 3px solid gold; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; z-index: 20001; }
+
+
+        /* --- ΕΝΣΩΜΑΤΩΜΕΝΟ ΒΙΝΤΕΟ ΔΩΜΑΤΙΟΥ --- */
+        #main-video-frame {
+            position: absolute;
+            top: 150px;  
+            left: 600px;  
+            width: 700px;  
+            height: auto;
+            display: none; 
+            z-index: 1;    
+            background: #000;
+            border: 5px solid #444; 
+            border-radius: 5px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        
+        #guitarVideo {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover; 
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    <img src="photos/Guitar.png" id="guitar-obj" onclick="toggleMenu()">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleGuitarSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <video id="guitarVideo" controls src="instrument/Guitar.mp4"></video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            <h1 style="color:gold; text-align:center;">ΚΙΘΑΡΑ</h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="info-text">
+                <ul class="info-list">
+                    <li>Ανήκει στην οικογένεια των εγχόρδων και ο ήχος της παράγεται όταν "τσιμπάμε" τις χορδές με τα δάχτυλα ή με ένα μικρό πλαστικό εργαλείο που λέγεται πένα.</li>
+                    <li>Οι πιο γνωστές κιθάρες είναι η κλασική (με νάιλον χορδές), η ακουστική (με μεταλλικές χορδές) και η ηλεκτρική που χρειάζεται ενισχυτή για να ακουστεί δυνατά.</li>
+                    <li>Το σώμα της κλασικής κιθάρας είναι κούφιο και ξύλινο, λειτουργώντας σαν ένα ηχείο που μεγαλώνει τον ήχο των χορδών.</li>
+                    <li>Ο μακρύς λαιμός της λέγεται μπράτσο και πάνω του υπάρχουν μεταλλικές γραμμές που χωρίζουν τις νότες, τα λεγόμενα "τάστα".</li>
+                    <li>Στην κορυφή της έχει τα κλειδιά, τα οποία στρίβουμε για να τεντώσουμε ή να χαλαρώσουμε τις χορδές μέχρι να κουρδιστεί σωστά.</li>
+                    <li>Είναι ένα πολύ "κοινωνικό" όργανο, γιατί με αυτήν μπορούμε να παίξουμε από κλασική μουσική και ροκ, μέχρι ποπ και παραδοσιακά τραγούδια.</li>
+                    <li>Ο μουσικός μπορεί να παίζει καθιστός, ακουμπώντας την κιθάρα στο πόδι του, ή όρθιος χρησιμοποιώντας μια ζώνη που περνάει από τον ώμο του.</li>
+                </ul>
+            </div>
+
+            <div id="qa-text" style="display:none;">
+                <div class="qa-grid">
+                    <div class="qa-item"><span class="qa-q">1. Πόσες χορδές έχει συνήθως μια κιθάρα;</span> Έχει 6 χορδές.</div>
+                    <div class="qa-item"><span class="qa-q">2. Σε ποια οικογένεια οργάνων ανήκει η κιθάρα;</span> Ανήκει στα έγχορδα.</div>
+                    <div class="qa-item"><span class="qa-q">3. Πώς λέγεται το μικρό πλαστικό τριγωνάκι;</span> Λέγεται πένα.</div>
+                    <div class="qa-item"><span class="qa-q">4. Από τι υλικό είναι φτιαγμένο το σώμα;</span> Είναι φτιαγμένο από ξύλο.</div>
+                    <div class="qa-item"><span class="qa-q">5. Πώς λέγεται το μακρύ μέρος της κιθάρας;</span> Λέγεται μπράτσο (ή λαιμός).</div>
+                    <div class="qa-item"><span class="qa-q">6. Πώς ονομάζονται οι μεταλλικές γραμμές;</span> Ονομάζονται τάστα.</div>
+                    <div class="qa-item"><span class="qa-q">7. Πώς λέγεται η κιθάρα που μπαίνει στην πρίζα;</span> Ηλεκτρική κιθάρα.</div>
+                    <div class="qa-item"><span class="qa-q">8. Τι χρησιμοποιούμε για να κουρδίσουμε;</span> Τα κλειδιά.</div>
+                    <div class="qa-item"><span class="qa-q">9. Πώς λέγεται ο μουσικός που παίζει κιθάρα;</span> Κιθαρίστας.</div>
+                    <div class="qa-item"><span class="qa-q">10. Χρειάζεται δοξάρι;</span> Όχι, παίζεται με δάχτυλα ή πένα.</div>
+                    <div class="qa-item"><span class="qa-q">11. Πώς λέγεται η τρύπα στο κέντρο;</span> Λέγεται ηχείο.</div>
+                    <div class="qa-item"><span class="qa-q">12. Τι διαφορά έχουν οι χορδές κλασικής/ακουστικής;</span> Η κλασική έχει νάιλον, η ακουστική μέταλλο.</div>
+                    <div class="qa-item"><span class="qa-q">13. Πώς λέγεται η μικρή κιθάρα με 4 χορδές;</span> Γιουκαλίλι.</div>
+                    <div class="qa-item"><span class="qa-q">14. Μπορούμε να παίξουμε πολλές νότες μαζί;</span> Ναι, λέγεται συγχορδία (ακόρντο).</div>
+                    <div class="qa-item"><span class="qa-q">15. Τι βοηθά τον κιθαρίστα να παίζει όρθιος;</span> Η ζώνη κιθάρας.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger" onclick="closeRepertorioMenu()"></div>
+            <ul class="rep-links">
+                <li><a onclick="playRepVideo('Adagio - Concierto de Aranjuez (Pepe Romero, Rafael Frόhbeck de Burgos).mp4')">Adagio - Concierto de Aranjuez</a></li>
+                <li><a onclick="playRepVideo('Ana Vidovic plays Asturias by Isaac Albιniz on a Jim Redgate classical guitar.mp4')">Asturias by Isaac Albιniz</a></li>
+                <li><a onclick="playRepVideo('Bourrιe BWV 996 by Johann Sebastian Bach, performed by Edson Lopes.mp4')">Bourrιe BWV 996 Bach</a></li>
+                <li><a onclick="playRepVideo('Recuerdos de la Alhambra by Francisco Tárrega • Goran Krivokapić - classical guitar.mp4')">Recuerdos de la Alhambra</a></li>
+                <li><a onclick="playRepVideo('Spanish Romance (Romance D΄amour) played by Soren Madsen.mp4')">Spanish Romance</a></li>
+            </ul>
+        </div>
+    </div>
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">X</span>
+        <video id="repVideoPlayer" controls></video>
+    </div>
+
+    <script>
+        const guitarAudio = new Audio('sounds/INSTRUMENTS/Guitar.m4a');
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        function stopEverything() {
+            guitarAudio.pause();
+            guitarAudio.currentTime = 0;
+            
+            const gVid = document.getElementById('guitarVideo');
+            gVid.pause();
+            
+            document.getElementById('repVideoPlayer').pause();
+            document.getElementById('rep-video-container').style.display = 'none';
+            synth.cancel();
+            isSpeaking = false;
+        }
+
+        function toggleMenu() {
+            const papyros = document.getElementById('papyros-obj');
+            const btns = document.querySelectorAll('.menu-btn');
+            papyrosSfx.play();
+            const isVisible = papyros.style.display === 'block';
+            if (isVisible) { stopEverything(); papyros.style.display = 'none'; btns.forEach(b => b.style.display = 'none'); }
+            else { papyros.style.display = 'block'; btns.forEach(b => b.style.display = 'block'); }
+        }
+
+        function openVideoFrame() { 
+            stopEverything(); 
+            document.getElementById('main-video-frame').style.display = 'block'; 
+            document.getElementById('guitarVideo').play(); 
+        }
+        
+        function toggleGuitarSound() { 
+            const wasPlaying = !guitarAudio.paused; 
+            stopEverything(); 
+            document.getElementById('main-video-frame').style.display = 'none';
+            if (!wasPlaying) guitarAudio.play(); 
+        }
+        
+        function showInfo() { 
+            stopEverything(); 
+            document.getElementById('main-video-frame').style.display = 'none';
+            document.getElementById('info-overlay').style.display = 'block'; 
+        }
+        function closeInfo() { stopEverything(); document.getElementById('info-overlay').style.display = 'none'; }
+
+        function toggleTab(tab) {
+            document.getElementById('info-text').style.display = (tab === 'info') ? 'block' : 'none';
+            document.getElementById('qa-text').style.display = (tab === 'qa') ? 'block' : 'none';
+            document.getElementById('btn-info').classList.toggle('inactive', tab !== 'info');
+            document.getElementById('btn-qa').classList.toggle('inactive', tab !== 'qa');
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const activeId = document.getElementById('btn-info').classList.contains('inactive') ? 'qa-text' : 'info-text';
+                const utterance = new SpeechSynthesisUtterance(document.getElementById(activeId).innerText);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+
+        function openRepertorio() { 
+            stopEverything(); 
+            document.getElementById('main-video-frame').style.display = 'none';
+            document.getElementById('repertorio-overlay').style.display = 'flex'; 
+        }
+        function closeRepertorioMenu() { document.getElementById('repertorio-overlay').style.display = 'none'; }
+        function playRepVideo(fileName) {
+            stopEverything();
+            document.getElementById('repVideoPlayer').src = 'Repertorio/KITHARAREP/' + fileName;
+            document.getElementById('rep-video-container').style.display = 'flex';
+            document.getElementById('repVideoPlayer').play();
+        }
+        function closeRepVideo() { stopEverything(); document.getElementById('repertorio-overlay').style.display = 'flex'; }
+    </script>
+</body>
+</html>

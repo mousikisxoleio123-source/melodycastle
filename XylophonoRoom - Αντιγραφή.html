@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Κρουστών - Ξυλόφωνο & Μεταλλόφωνο</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        /* Φόντο Δωματίου */
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: url('ROOMS/XYLOPHONO/xylophono.jpg'); 
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            z-index: -2;
+        }
+
+        /* ΟΡΓΑΝΑ - ΣΥΝΤΕΤΑΓΜΕΝΕΣ ΧΡΗΣΤΗ */
+        .instrument { position: absolute; cursor: pointer; z-index: 5; transition: transform 0.2s; }
+        
+        #xylophone-obj { 
+            top: 898px; 
+            left: 1579px; 
+            width: 380px; 
+        }
+        
+        #vibraphone-obj { 
+            top: 954px; 
+            left: 1114px; 
+            width: 400px; 
+        }
+
+        .instrument:hover { transform: scale(1.05); }
+
+        /* Μενού Πάπυρος */
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; width: 120px; }
+        #video-obj { top: 109px; left: 184px; }
+        #sound-obj { top: 223px; left: 190px; }
+        #iplay-obj { top: 326px; left: 190px; }
+        #rplay-obj { top: 449px; left: 191px; }
+
+        /* ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ (OVERLAY) */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.85); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 85%; max-width: 950px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #3a3a3a, #4a4a4a); 
+            padding: 40px; border-radius: 5px; border: 10px solid #222; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #555; border: 2px solid #777; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.2rem; }
+        .tab-btn:not(.inactive) { background: #8b0000; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.4rem; line-height: 1.6; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 15px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .qa-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; border-left: 4px solid gold; font-size: 1.3rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; font-size: 1.4rem; }
+        
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+
+        /* REPERTORIO */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 850px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 150px; cursor: pointer; z-index: 10001; }
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 70%; margin-top: 180px; z-index: 10002; }
+        .rep-links li { margin: 15px 0; border-bottom: 1px dashed rgba(74, 44, 15, 0.3); padding-bottom: 5px; }
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.25rem; cursor: pointer; display: block; transition: 0.2s; }
+        .rep-links a:hover { color: #8b0000; transform: scale(1.03); }
+
+        /* VIDEO PLAYERS */
+        #main-video-frame, #rep-video-container {
+            position: fixed; top: 150px; left: 50%; transform: translateX(-50%); 
+            width: 700px; display: none; z-index: 20000; background: #000; 
+            border: 4px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        #rep-video-container { top: 0; left: 0; width: 100%; height: 100%; transform: none; border: none; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.95); }
+        #repVideoPlayer { width: 80%; max-height: 80%; border: 3px solid gold; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; }
+        #instrumentVideo { width: 100%; display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    
+    <img src="photos/Xylophone.png" id="xylophone-obj" class="instrument" onclick="toggleMenu('xylo')">
+    <img src="photos/vibraphone.png" id="vibraphone-obj" class="instrument" onclick="toggleMenu('vibra')">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleInstrumentSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <span style="color:white; float:right; padding:10px; cursor:pointer;" onclick="stopEverything()">❌ ΚΛΕΙΣΙΜΟ</span>
+        <video id="instrumentVideo" controls></video>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger" onclick="closeRepertorioMenu()"></div>
+            <ul id="rep-list" class="rep-links"></ul>
+        </div>
+    </div>
+
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">×</span>
+        <video id="repVideoPlayer" controls></video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            <h1 id="info-title" style="color:gold; text-align:center; font-size: 2.5rem;"></h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="info-text-container">
+                <ul id="info-list-data" class="info-list"></ul>
+            </div>
+
+            <div id="qa-text-container" style="display:none;">
+                <div id="qa-grid-data" class="qa-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = '';
+        const sounds = {
+            xylo: new Audio('sounds/INSTRUMENTS/Xylophone.m4a'),
+            vibra: new Audio('sounds/INSTRUMENTS/Vibraphone.m4a')
+        };
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        const instrumentData = {
+            xylo: {
+                title: "ΞΥΛΟΦΩΝΟ",
+                video: "instrument/Xylophone.mp4",
+                info: [
+                    "Το ξυλόφωνο είναι ένα μουσικό όργανο που ανήκει στην οικογένεια των κρουστών.",
+                    "Το όνομά του προέρχεται από τις ελληνικές λέξεις «ξύλο» και «φωνή».",
+                    "Αποτελείται από ξύλινες πλάκες, τις οποίες χτυπάμε με ειδικά μπαστουνάκια που ονομάζονται μπαγκέτες.",
+                    "Κάθε ξύλινη πλάκα έχει διαφορετικό μήκος για να βγάζει και διαφορετική νότα.",
+                    "Οι πλάκες του είναι τοποθετημένες στη σειρά, ακριβώς όπως τα πλήκτρα ενός πιάνου.",
+                    "Κάτω από κάθε πλάκα υπάρχουν σωλήνες που βοηθούν τον ήχο να ακούγεται πιο δυνατά.",
+                    "Επειδή ο ήχος του είναι ξερός και κοφτός, οι συνθέτες τον χρησιμοποιούν συχνά για να μιμηθούν τον ήχο από κόκαλα σκελετού που τρίζουν."
+                ],
+                qa: [
+                    ["Τι σημαίνει το όνομα «ξυλόφωνο»;", "Το όνομά του προέρχεται από τις ελληνικές λέξεις «ξύλο» και «φωνή», που σημαίνει «ήχος από ξύλο»."],
+                    ["Σε ποια οικογένεια μουσικών οργάνων ανήκει;", "Ανήκει στην οικογένεια των κρουστών οργάνων."],
+                    ["Από τι είναι φτιαγμένες οι πλάκες του;", "Οι πλάκες κατασκευάζονται από σκληρό ξύλο, όπως η τριανταφυλλιά, ή από ειδικά συνθετικά υλικά."],
+                    ["Πώς είναι τοποθετημένες οι πλάκες πάνω στο όργανο;", "Είναι τοποθετημένες στη σειρά, ακριβώς όπως τα πλήκτρα ενός πιάνου."],
+                    ["Με τι χτυπάμε τις πλάκες για να βγάλουν ήχο;", "Χρησιμοποιούμε ειδικά μπαστουνάκια που ονομάζονται μπαγκέτες."],
+                    ["Πώς λέγονται οι σωλήνες που κρέμονται κάτω από τις πλάκες;", "Αυτοί οι σωλήνες ονομάζονται αντηχεία."],
+                    ["Τι δουλειά κάνουν τα αντηχεία;", "Βοηθούν τον ήχο να ακούγεται πιο δυνατά και να διαρκεί περισσότερο."],
+                    ["Τι είδους ήχο έχει το ξυλόφωνο;", "Ο ήχος του είναι λαμπερός, κοφτός και διαπεραστικός."],
+                    ["Τι προσπαθούν να μιμηθούν οι μουσικοί με τον ήχο του;", "Συχνά τον χρησιμοποιούν για να μιμηθούν τον ήχο από κόκαλα σκελετού που τρίζουν."],
+                    ["Από πού ξεκίνησε το ξυλόφωνο;", "Οι ρίζες του βρίσκονται στην Αφρική και την Ασία."],
+                    ["Γιατί οι πλάκες έχουν διαφορετικά μεγέθη;", "Επειδή κάθε μήκος πλάκας βγάζει και μια διαφορετική μουσική νότα."],
+                    ["Μπορούμε να παίζουμε ξυλόφωνο στη βροχή;", "Όχι, γιατί η υγρασία μπορεί να καταστρέψει το ξύλο και να αλλάξει τον ήχο του."],
+                    ["Πώς πρέπει να καθαρίζουμε τις πλάκες;", "Πρέπει να τις σκουπίζουμε απαλά με ένα στεγνό και μαλακό πανί."],
+                    ["Είναι μεγαλύτερο ή μικρότερο από τη μαρίμπα;", "Το ξυλόφωνο είναι μικρότερο και έχει πιο ψηλό ήχο σε σχέση με τη μαρίμπα."],
+                    ["Πόσες μπαγκέτες χρησιμοποιεί ένας παίκτης;", "Συνήθως χρησιμοποιεί δύο, αλλά οι έμπειροι παίκτες μπορούν να κρατούν μέχρι και τέσσερις."]
+                ],
+                repertorio: [
+                    ["J. Green: Xylophonia (arr. Bob Becker)", "Repertorio/XYLOPHONO/_Xylophonia_ by Joe Green, arr. Bob Becker, Micah York (soloist), SFA Percussion Ensemble.mp4"],
+                    ["F. Werle: The Golden Age Of The Xylophone", "Repertorio/XYLOPHONO/Floyd Werle (arr. Randy Eyles) _The Golden Age Of The Xylophone_ _ Kammerkonzert vom 15.6.2016.mp4"],
+                    ["V. Monti: Csardas (Marianna Bednarska)", "Repertorio/XYLOPHONO/Marianna Bednarska (xylophone) plays Csardas by V. Monti.mp4"],
+                    ["Saint-Saëns: Fossils (Carnival of the Animals)", "Repertorio/XYLOPHONO/Saint-Saλns_ Carnival of the Animals_ XII. Fossils.mp4"]
+                ]
+            },
+            vibra: {
+                title: "ΜΕΤΑΛΛΟΦΩΝΟ (VIBRAPHONE)",
+                video: "instrument/Vibraphone.mp4",
+                info: [
+                    "Το μεταλλόφωνο (vibraphone) ανήκει στην οικογένεια των κρουστών.",
+                    "Αποτελείται από μεταλλικές πλάκες (συνήθως αλουμίνιο).",
+                    "Διαθέτει ένα ηλεκτρικό μοτέρ που δημιουργεί το εφέ του 'βιμπράτο'.",
+                    "Έχει ένα πεντάλ στο κάτω μέρος για να ελέγχει τη διάρκεια του ήχου.",
+                    "Χρησιμοποιείται πολύ στη Jazz μουσική.",
+                    "Ο ήχος του είναι γλυκός, απαλός και 'τρεμουλιαστός'."
+                ],
+                qa: [
+                    ["Από τι είναι φτιαγμένες οι πλάκες του;", "Από μέταλλο, συνήθως αλουμίνιο."],
+                    ["Γιατί λέγεται Vibraphone;", "Λόγω του εφέ 'βιμπράτο' που παράγει."],
+                    ["Τι κάνει το πεντάλ;", "Επιτρέπει στον ήχο να διαρκεί περισσότερο."]
+                ],
+                repertorio: [
+                    ["Vibraphone Solo Jazz", "Repertorio/VIBRAPHONE/solo_jazz.mp4"],
+                    ["Orchestral Vibraphone", "Repertorio/VIBRAPHONE/orchestra.mp4"]
+                ]
+            }
+        };
+
+        function stopEverything() {
+            sounds.xylo.pause(); sounds.xylo.currentTime = 0;
+            sounds.vibra.pause(); sounds.vibra.currentTime = 0;
+            const iVid = document.getElementById('instrumentVideo');
+            iVid.pause(); iVid.src = "";
+            document.getElementById('main-video-frame').style.display = 'none';
+            const rVid = document.getElementById('repVideoPlayer');
+            rVid.pause(); rVid.src = "";
+            document.getElementById('rep-video-container').style.display = 'none';
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleMenu(mode) {
+            currentMode = mode;
+            papyrosSfx.play();
+            document.getElementById('papyros-obj').style.display = 'block';
+            document.querySelectorAll('.menu-btn').forEach(b => b.style.display = 'block');
+        }
+
+        function openVideoFrame() { 
+            stopEverything(); 
+            const frame = document.getElementById('main-video-frame');
+            const video = document.getElementById('instrumentVideo');
+            video.src = instrumentData[currentMode].video;
+            frame.style.display = 'block'; 
+            video.play(); 
+        }
+
+        function toggleInstrumentSound() { 
+            const wasPlaying = !sounds[currentMode].paused; 
+            stopEverything(); 
+            if (!wasPlaying) sounds[currentMode].play(); 
+        }
+
+        function showInfo() { 
+            stopEverything(); 
+            const d = instrumentData[currentMode];
+            document.getElementById('info-title').innerText = d.title;
+            document.getElementById('info-list-data').innerHTML = d.info.map(i => `<li>${i}</li>`).join('');
+            document.getElementById('qa-grid-data').innerHTML = d.qa.map(q => `
+                <div class="qa-item"><span class="qa-q">${q[0]}</span> ${q[1]}</div>
+            `).join('');
+            document.getElementById('info-overlay').style.display = 'block'; 
+        }
+
+        function closeInfo() { stopEverything(); document.getElementById('info-overlay').style.display = 'none'; }
+
+        function openRepertorio() {
+            stopEverything();
+            const list = document.getElementById('rep-list');
+            list.innerHTML = instrumentData[currentMode].repertorio.map(r => `
+                <li><a onclick="playRepVideo('${r[1]}')">${r[0]}</a></li>
+            `).join('');
+            document.getElementById('repertorio-overlay').style.display = 'flex';
+        }
+
+        function closeRepertorioMenu() { document.getElementById('repertorio-overlay').style.display = 'none'; }
+
+        function playRepVideo(path) {
+            document.getElementById('repertorio-overlay').style.display = 'none';
+            const player = document.getElementById('repVideoPlayer');
+            player.src = path;
+            document.getElementById('rep-video-container').style.display = 'flex';
+            player.play();
+        }
+
+        function closeRepVideo() { stopEverything(); document.getElementById('repertorio-overlay').style.display = 'flex'; }
+
+        function toggleTab(tab) {
+            document.getElementById('info-text-container').style.display = (tab === 'info') ? 'block' : 'none';
+            document.getElementById('qa-text-container').style.display = (tab === 'qa') ? 'block' : 'none';
+            document.getElementById('btn-info').classList.toggle('inactive', tab !== 'info');
+            document.getElementById('btn-qa').classList.toggle('inactive', tab !== 'qa');
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const activeId = document.getElementById('btn-info').classList.contains('inactive') ? 'qa-text-container' : 'info-text-container';
+                const utterance = new SpeechSynthesisUtterance(document.getElementById(activeId).innerText);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+    </script>
+</body>
+</html>

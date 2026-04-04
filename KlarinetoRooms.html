@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Κλαρινέτου</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        /* Φόντο Δωματίου Κλαρινέτου */
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: url('ROOMS/KLARINETO/Klarineto.jpg'); 
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            z-index: -2;
+        }
+
+        /* Το Όργανο - ΚΛΕΙΔΩΜΕΝΕΣ ΣΥΝΤΕΤΑΓΜΕΝΕΣ */
+        #instrument-obj { 
+            position: absolute; 
+            top: 724px; 
+            left: 1106px; 
+            width: 385px; 
+            transform: rotate(-20deg);
+            cursor: pointer; 
+            z-index: 5; 
+            transition: transform 0.2s; 
+        }
+        #instrument-obj:hover { transform: rotate(-20deg) scale(1.05); }
+
+        /* Μενού Πάπυρος */
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; }
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.85); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 85%; max-width: 950px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #3a3a3a, #4a4a4a); 
+            padding: 40px; border-radius: 5px; border: 10px solid #222; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #555; border: 2px solid #777; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.2rem; }
+        .tab-btn:not(.inactive) { background: #8b0000; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.4rem; line-height: 1.6; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 15px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .qa-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; border-left: 4px solid gold; font-size: 1.3rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; font-size: 1.4rem; }
+        
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+
+        /* ΕΝΣΩΜΑΤΩΜΕΝΟ ΒΙΝΤΕΟ ΜΑΘΗΜΑΤΟΣ */
+        #main-video-frame {
+            position: absolute; top: 150px; left: 600px; width: 600px; 
+            display: none; z-index: 100; background: #000; 
+            border: 4px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        #instrumentVideo { width: 100%; display: block; }
+
+        /* REPERTORIO STYLES */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 850px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger-rep { position: absolute; top: 0; left: 0; width: 100%; height: 150px; cursor: pointer; z-index: 10001; }
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 75%; margin-top: 170px; z-index: 10002; }
+        .rep-links li { margin-bottom: 10px; padding: 8px 0; border-bottom: 1px dashed rgba(74, 44, 15, 0.3); }
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.3rem; cursor: pointer; display: block; transition: 0.2s; line-height: 1.2; }
+        .rep-links a:hover { color: #8b0000; transform: scale(1.03); }
+
+        #rep-video-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 20000; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; 
+        }
+        #repVideoPlayer { width: 85%; max-height: 80%; border: 3px solid gold; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    
+    <img src="photos/Clarinet.png" id="instrument-obj" onclick="toggleMenu()">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleInstrumentSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <video id="instrumentVideo" controls src="instrument/Clarinet.mp4"></video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            <h1 style="color:gold; text-align:center; font-size: 2.5rem;">ΚΛΑΡΙΝΕΤΟ</h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="info-text">
+                <ul class="info-list">
+                    <li>Είναι ένα μουσικό όργανο που ανήκει στην οικογένεια των ξύλινων πνευστών.</li>
+                    <li>Ο ήχος βγαίνει όταν φυσάμε στο επιστόμιο, όπου δονείται ένα λεπτό καλάμι.</li>
+                    <li>Το εφηύρε ο Γιόχαν Κρίστιαν Ντένερ στη Γερμανία γύρω στο 1690.</li>
+                    <li>Το όνομα του προέρχεται από μια λέξη που σημαίνει «μικρή τρομπέτα».</li>
+                    <li>Έχει πολλές τρύπες και μεταλλικά κλειδιά που τα πατάμε με τα δάχτυλα για να βγάζουμε νότες.</li>
+                    <li>Έχει πολύ μεγάλη «φωνή», αφού παίζει από πολύ χαμηλές μέχρι πολύ ψηλές νότες.</li>
+                    <li>Ο Μότσαρτ ήταν ένας από τους μεγαλύτερους θαυμαστές του και του έγραψε υπέροχη μουσική.</li>
+                    <li>Είναι ο μεγάλος «πρωταγωνιστής» στην Τζαζ μουσική.</li>
+                </ul>
+            </div>
+
+            <div id="qa-text" style="display:none;">
+                <div class="qa-grid">
+                    <div class="qa-item"><span class="qa-q">1. Τι είναι;</span> Πνευστό όργανο με ένα καλάμι.</div>
+                    <div class="qa-item"><span class="qa-q">2. Τι σημαίνει το όνομα;</span> Μικρή τρομπέτα.</div>
+                    <div class="qa-item"><span class="qa-q">3. Ποιος το εφηύρε;</span> Ο Γιόχαν Κρίστιαν Ντένερ.</div>
+                    <div class="qa-item"><span class="qa-q">4. Πώς βγάζει ήχο;</span> Φυσάμε και δονείται το καλάμι.</div>
+                    <div class="qa-item"><span class="qa-q">5. Τι είναι το καλάμι;</span> Λεπτό κομμάτι ξύλου (καλαμιά).</div>
+                    <div class="qa-item"><span class="qa-q">6. Από τι φτιάχνεται;</span> Ξύλο εβένου ή πλαστικό.</div>
+                    <div class="qa-item"><span class="qa-q">7. Ποια είναι τα μέρη του;</span> Επιστόμιο, βαρελάκι, σώμα, καμπάνα.</div>
+                    <div class="qa-item"><span class="qa-q">8. Σε τι χρησιμεύει η καμπάνα;</span> Δυναμώνει τον ήχο.</div>
+                    <div class="qa-item"><span class="qa-q">9. Ποιος το αγαπούσε;</span> Ο συνθέτης Μότσαρτ.</div>
+                    <div class="qa-item"><span class="qa-q">10. Πού το ακούμε;</span> Στην κλασική μουσική και την Τζαζ.</div>
+                    <div class="qa-item"><span class="qa-q">11. Έχει πολλά μεγέθη;</span> Ναι, από μικρά έως τεράστια.</div>
+                    <div class="qa-item"><span class="qa-q">12. Πώς καθόμαστε;</span> Με ίσια πλάτη και κεφάλι ψηλά.</div>
+                    <div class="qa-item"><span class="qa-q">13. Τι κάνουμε στο καλάμι;</span> Το βρέχουμε πριν παίξουμε.</div>
+                    <div class="qa-item"><span class="qa-q">14. Υπάρχουν διαφορετικά μεγέθη;</span> Ναι, από το μικρό κλαρινέτο μέχρι το μπάσο κλαρινέτο με βαθύ ήχο.</div>
+                    <div class="qa-item"><span class="qa-q">15. Ποια είναι η σωστή στάση;</span> Ίσια πλάτη, κεφάλι ψηλά και τα δύο πόδια σταθερά στο πάτωμα.</div>
+                    <div class="qa-item"><span class="qa-q">16. Τι πρέπει να κάνουμε στο καλάμι;</span> Πρέπει να το βρέχουμε καλά στο στόμα μας για λίγη ώρα ώστε να μαλακώσει.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger-rep" onclick="closeRepertorioMenu()"></div>
+            <ul class="rep-links" id="rep-list-content"></ul>
+        </div>
+    </div>
+
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">X</span>
+        <video id="repVideoPlayer" controls></video>
+    </div>
+
+    <script>
+        const instrumentAudio = new Audio('sounds/INSTRUMENTS/Clarinet.m4a');
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+        let timeCheckInterval;
+
+        // ΛΙΣΤΑ ΡΕΠΕΡΤΟΡΙΟΥ
+        const clarinetRepertorio = [
+            { t: "W. A. Mozart - Clarinet Concerto, K. 622", f: "W. A. Mozart _ Clarinet Concerto, K. 622 - Joë Christophe - ARD 2019.mp4", start: 1155, end: null }, // 19:15 = 1155s
+            { t: "Gershwin - Rhapsody in Blue (Solo)", f: "Gershwin_ Rhapsody in Blue ∙ hr-Sinfonieorchester ∙ Alain Altinoglu.mp4", start: 0, end: 50 }
+        ];
+
+        function stopEverything() {
+            instrumentAudio.pause(); instrumentAudio.currentTime = 0;
+            const iVid = document.getElementById('instrumentVideo');
+            if(iVid) iVid.pause();
+            const rVid = document.getElementById('repVideoPlayer');
+            if(rVid) { rVid.pause(); rVid.src = ""; }
+            clearInterval(timeCheckInterval);
+            document.getElementById('main-video-frame').style.display = 'none';
+            document.getElementById('rep-video-container').style.display = 'none';
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleMenu() {
+            const papyros = document.getElementById('papyros-obj');
+            const btns = document.querySelectorAll('.menu-btn');
+            papyrosSfx.play();
+            if (papyros.style.display === 'block') { 
+                stopEverything(); 
+                papyros.style.display = 'none'; 
+                btns.forEach(b => b.style.display = 'none'); 
+            } else { 
+                papyros.style.display = 'block'; 
+                btns.forEach(b => b.style.display = 'block'); 
+            }
+        }
+
+        function openVideoFrame() { 
+            stopEverything(); 
+            document.getElementById('main-video-frame').style.display = 'block'; 
+            document.getElementById('instrumentVideo').play(); 
+        }
+
+        function toggleInstrumentSound() { 
+            const wasPlaying = !instrumentAudio.paused; 
+            stopEverything(); 
+            if (!wasPlaying) instrumentAudio.play(); 
+        }
+
+        function showInfo() { 
+            stopEverything(); 
+            document.getElementById('info-overlay').style.display = 'block'; 
+        }
+
+        function closeInfo() { 
+            stopEverything(); 
+            document.getElementById('info-overlay').style.display = 'none'; 
+        }
+
+        function openRepertorio() {
+            stopEverything();
+            const list = document.getElementById('rep-list-content');
+            list.innerHTML = '';
+            clarinetRepertorio.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a onclick="playRepVideo(${index})">${item.t}</a>`;
+                list.appendChild(li);
+            });
+            document.getElementById('repertorio-overlay').style.display = 'flex';
+        }
+
+        function playRepVideo(index) {
+            stopEverything();
+            const item = clarinetRepertorio[index];
+            const player = document.getElementById('repVideoPlayer');
+            
+            player.src = "Repertorio/KLARINETO/" + item.f;
+            document.getElementById('rep-video-container').style.display = 'flex';
+            
+            player.onloadedmetadata = function() {
+                player.currentTime = item.start;
+                player.play();
+            };
+
+            if (item.end) {
+                timeCheckInterval = setInterval(() => {
+                    if (player.currentTime >= item.end) {
+                        player.pause();
+                        clearInterval(timeCheckInterval);
+                    }
+                }, 500);
+            }
+        }
+
+        function closeRepertorioMenu() { document.getElementById('repertorio-overlay').style.display = 'none'; }
+        
+        function closeRepVideo() { 
+            stopEverything(); 
+            document.getElementById('repertorio-overlay').style.display = 'flex'; 
+        }
+
+        function toggleTab(tab) {
+            document.getElementById('info-text').style.display = (tab === 'info') ? 'block' : 'none';
+            document.getElementById('qa-text').style.display = (tab === 'qa') ? 'block' : 'none';
+            document.getElementById('btn-info').classList.toggle('inactive', tab !== 'info');
+            document.getElementById('btn-qa').classList.toggle('inactive', tab !== 'qa');
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const activeId = document.getElementById('btn-info').classList.contains('inactive') ? 'qa-text' : 'info-text';
+                const utterance = new SpeechSynthesisUtterance(document.getElementById(activeId).innerText);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+    </script>
+</body>
+</html>

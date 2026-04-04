@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Βιολοντσέλου</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        /* Φόντο Δωματίου Βιολοντσέλου */
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: url('ROOMS/CELLO/Cello.jpg'); 
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            z-index: -2;
+        }
+
+        /* Το Όργανο - ΚΛΕΙΔΩΜΕΝΕΣ ΣΥΝΤΕΤΑΓΜΕΝΕΣ */
+        #instrument-obj { 
+            position: absolute; 
+            top: 637px; 
+            left: 1377px; 
+            width: 385px; 
+            transform: rotate(55deg);
+            cursor: pointer; 
+            z-index: 5; 
+            transition: transform 0.2s; 
+        }
+        #instrument-obj:hover { transform: rotate(55deg) scale(1.05); }
+
+        /* Μενού Πάπυρος */
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; }
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* ΠΕΤΡΙΝΟ ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.85); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 85%; max-width: 950px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #3a3a3a, #4a4a4a); 
+            padding: 40px; border-radius: 5px; border: 10px solid #222; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #555; border: 2px solid #777; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.2rem; }
+        .tab-btn:not(.inactive) { background: #8b0000; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.4rem; line-height: 1.6; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 15px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .qa-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; border-left: 4px solid gold; font-size: 1.3rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; font-size: 1.4rem; }
+        
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+
+        /* REPERTORIO OVERLAY (R) */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 850px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 150px; cursor: pointer; z-index: 10001; }
+
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 75%; margin-top: 180px; z-index: 10002; }
+        .rep-links li { margin: 15px 0; border-bottom: 1px dashed rgba(74, 44, 15, 0.3); padding-bottom: 8px; }
+        .rep-links li:last-child { border-bottom: none; }
+
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.25rem; cursor: pointer; display: block; transition: 0.2s; line-height: 1.2; }
+        .rep-links a:hover { color: #8b0000; transform: scale(1.05); }
+
+        /* VIDEO PLAYERS */
+        #main-video-frame, #rep-video-container {
+            position: absolute; top: 150px; left: 600px; width: 600px; 
+            display: none; z-index: 20000; background: #000; 
+            border: 4px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        #rep-video-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; border: none; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.95); }
+        
+        /* IFRAME ΓΙΑ GOOGLE DRIVE */
+        #repVideoPlayer { width: 80%; height: 80%; border: 3px solid gold; background: #000; }
+        #instrumentVideo { width: 100%; display: block; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; z-index: 20001; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    
+    <img src="photos/Cello.png" id="instrument-obj" onclick="toggleMenu()">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleInstrumentSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <video id="instrumentVideo" controls src="instrument/Cello.mp4"></video>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger" onclick="closeRepertorioMenu()"></div>
+            <ul class="rep-links">
+                <li><a onclick="playRepVideo('1MVjHbHuYp7Wuu2jw7G5JvSvjL6aGq2Xb')">J.S. Bach: Cello Suite No.1 - Prelude</a></li>
+                <li><a onclick="playRepVideo('1ZooLkkDbuGkv3QBvozSfTDX3OLlvsmxW')">E. Elgar: Cello Concerto - Adagio</a></li>
+                <li><a onclick="playRepVideo('1P9ViHn8PY7XPp3ttlDxqm9-GKDSOFT2t')">L. van Beethoven: Cello Sonata No. 3</a></li>
+                <li><a onclick="playRepVideo('1P9ViHn8PY7XPp3ttlDxqm9-GKDSOFT2t')">C. Saint-Saëns: The Swan</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">×</span>
+        <iframe id="repVideoPlayer" src="" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            <h1 style="color:gold; text-align:center; font-size: 2.5rem;">ΒΙΟΛΟΝΤΣΕΛΟ</h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="info-text">
+                <ul class="info-list">
+                    <li>Το τσέλο είναι πολύ μεγαλύτερο από το βιολί και τη βιόλα. Ο μουσικός πρέπει να κάθεται σε καρέκλα για να το παίξει.</li>
+                    <li>Ο ήχος του θεωρείται ότι μοιάζει πάρα πολύ με την ανδρική φωνή. Είναι βαθύς, πλούσιος και πολύ ζεστός.</li>
+                    <li>Επειδή είναι βαρύ, έχει ένα μεταλλικό στήριγμα στο κάτω μέρος που λέγεται «αναβολέας» (ή ακίδα).</li>
+                    <li>Ο τσελίστας κρατά το όργανο ανάμεσα στα γόνατά του και το ακουμπά στο στήθος του, σαν μια μεγάλη αγκαλιά!</li>
+                    <li>Έχει 4 χορδές, οι οποίες είναι πολύ πιο μακριές και χοντρές από του βιολιού.</li>
+                    <li>Το δοξάρι του είναι λίγο πιο κοντό και πιο χοντρό από αυτό του βιολιού.</li>
+                    <li>Το τσέλο παίζει στην ορχήστρα, αλλά είναι και υπέροχο σόλο όργανο με πανέμορφα έργα.</li>
+                </ul>
+            </div>
+
+            <div id="qa-text" style="display:none;">
+                <div class="qa-grid">
+                    <div class="qa-item"><span class="qa-q">1. Μπορούμε να παίξουμε τσέλο όρθιοι;</span> Όχι, ο μουσικός πρέπει πάντα να κάθεται σε καρέκλα.</div>
+                    <div class="qa-item"><span class="qa-q">2. Πού στηρίζεται το τσέλο στο πάτωμα;</span> Στηρίζεται σε μια μεταλλική ακίδα στο κάτω μέρος του.</div>
+                    <div class="qa-item"><span class="qa-q">3. Πώς είναι ο ήχος του σε σχέση με το βιολί;</span> Είναι πολύ πιο βαθύς και χαμηλός.</div>
+                    <div class="qa-item"><span class="qa-q">4. Με τι λένε ότι μοιάζει η φωνή του τσέλο;</span> Λένε ότι μοιάζει πολύ με την ανθρώπινη (ανδρική) φωνή.</div>
+                    <div class="qa-item"><span class="qa-q">5. Πού ακουμπάει το τσέλο ο μουσικός;</span> Το ακουμπάει στο στήθος του και το κρατάει ανάμεσα στα γόνατά του.</div>
+                    <div class="qa-item"><span class="qa-q">6. Πόσες χορδές έχει το βιολοντσέλο;</span> Έχει 4 χορδές.</div>
+                    <div class="qa-item"><span class="qa-q">7. Πώς λέγεται ο μουσικός που παίζει τσέλο;</span> Λέγεται τσελίστας ή βιολοντσελίστας.</div>
+                    <div class="qa-item"><span class="qa-q">8. Είναι μεγαλύτερο ή μικρότερο από τη βιόλα;</span> Είναι πολύ μεγαλύτερο από τη βιόλα.</div>
+                    <div class="qa-item"><span class="qa-q">9. Σε ποια οικογένεια οργάνων ανήκει;</span> Ανήκει στην οικογένεια των εγχόρδων.</div>
+                    <div class="qa-item"><span class="qa-q">10. Από τι υλικό είναι φτιαγμένο το σώμα του;</span> Είναι φτιαγμένο από ξύλο.</div>
+                    <div class="qa-item"><span class="qa-q">11. Χρησιμοποιούμε δοξάρι στο τσέλο;</span> Ναι, χρησιμοποιούμε ένα δοξάρι που είναι λίγο πιο κοντό και βαρύ.</div>
+                    <div class="qa-item"><span class="qa-q">12. Τι έχει το δοξάρι του πάνω για να βγάζει ήχο;</span> Έχει τρίχες από ουρά αλόγου.</div>
+                    <div class="qa-item"><span class="qa-q">13. Πώς λέγονται οι τρύπες στο σώμα του;</span> Λέγονται f (έφτα).</div>
+                    <div class="qa-item"><span class="qa-q">14. Μπορούμε να παίξουμε τις χορδές με τα δάχτυλα;</span> Ναι, και στο τσέλο μπορούμε να παίξουμε πιτσικάτο (pizzicato).</div>
+                    <div class="qa-item"><span class="qa-q">15. Είναι εύκολο να το μεταφέρουμε με τα πόδια;</span> Όχι ιδιαίτερα, γιατί χρειάζεται ειδική θήκη που μοιάζει με κάψουλα.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const instrumentAudio = new Audio('sounds/INSTRUMENTS/Cello.m4a');
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        function stopEverything() {
+            instrumentAudio.pause(); instrumentAudio.currentTime = 0;
+            const iVid = document.getElementById('instrumentVideo');
+            if(iVid) iVid.pause();
+            document.getElementById('main-video-frame').style.display = 'none';
+            
+            const repIframe = document.getElementById('repVideoPlayer');
+            if(repIframe) { repIframe.src = ""; } // Σταματάει το iframe αδειάζοντας το src
+            document.getElementById('rep-video-container').style.display = 'none';
+            
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleMenu() {
+            const papyros = document.getElementById('papyros-obj');
+            const btns = document.querySelectorAll('.menu-btn');
+            papyrosSfx.play();
+            if (papyros.style.display === 'block') { 
+                stopEverything(); 
+                papyros.style.display = 'none'; 
+                btns.forEach(b => b.style.display = 'none'); 
+            } else { 
+                papyros.style.display = 'block'; 
+                btns.forEach(b => b.style.display = 'block'); 
+            }
+        }
+
+        function openVideoFrame() { 
+            stopEverything(); 
+            document.getElementById('main-video-frame').style.display = 'block'; 
+            document.getElementById('instrumentVideo').play(); 
+        }
+
+        function toggleInstrumentSound() { 
+            const wasPlaying = !instrumentAudio.paused; 
+            stopEverything(); 
+            if (!wasPlaying) instrumentAudio.play(); 
+        }
+
+        function showInfo() { 
+            stopEverything(); 
+            document.getElementById('info-overlay').style.display = 'block'; 
+        }
+
+        function closeInfo() { 
+            stopEverything(); 
+            document.getElementById('info-overlay').style.display = 'none'; 
+        }
+
+        function openRepertorio() {
+            stopEverything();
+            document.getElementById('repertorio-overlay').style.display = 'flex';
+        }
+
+        function closeRepertorioMenu() {
+            document.getElementById('repertorio-overlay').style.display = 'none';
+        }
+
+        // Η νέα συνάρτηση που δέχεται το ID του Google Drive
+        function playRepVideo(driveId) {
+            document.getElementById('repertorio-overlay').style.display = 'none';
+            const container = document.getElementById('rep-video-container');
+            const iframe = document.getElementById('repVideoPlayer');
+            
+            // Κατασκευή του Embed Link
+            iframe.src = `https://drive.google.com/file/d/${driveId}/preview`;
+            
+            container.style.display = 'flex';
+        }
+
+        function closeRepVideo() {
+            stopEverything();
+            document.getElementById('repertorio-overlay').style.display = 'flex';
+        }
+
+        function toggleTab(tab) {
+            document.getElementById('info-text').style.display = (tab === 'info') ? 'block' : 'none';
+            document.getElementById('qa-text').style.display = (tab === 'qa') ? 'block' : 'none';
+            document.getElementById('btn-info').classList.toggle('inactive', tab !== 'info');
+            document.getElementById('btn-qa').classList.toggle('inactive', tab !== 'qa');
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const activeId = document.getElementById('btn-info').classList.contains('inactive') ? 'qa-text' : 'info-text';
+                const text = document.getElementById(activeId).innerText;
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+    </script>
+</body>
+</html>

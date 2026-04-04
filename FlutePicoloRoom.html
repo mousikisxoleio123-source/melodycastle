@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Φλάουτου & Πίκολο - Πλήρης Έκδοση</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: url('ROOMS/FLUTE/FLUTE.jpg'); 
+            background-size: cover; background-position: center; z-index: -2;
+        }
+
+        /* ΤΕΛΙΚΕΣ ΘΕΣΕΙΣ ΚΑΙ ΚΛΙΣΕΙΣ */
+        .instrument { position: absolute; cursor: pointer; z-index: 5; transition: transform 0.2s; }
+        
+        #flute-obj { 
+            top: 624px; left: 2176px; width: 114px; 
+            transform: rotate(90deg); 
+        }
+        #flute-obj:hover { transform: rotate(90deg) scale(1.05); }
+
+        #piccolo-obj { 
+            top: 732px; left: 1791px; width: 202px; 
+            transform: rotate(-30deg); 
+        }
+        #piccolo-obj:hover { transform: rotate(-30deg) scale(1.05); }
+
+        /* ΜΕΝΟΥ ΠΑΠΥΡΟΣ */
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; }
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.9); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 90%; max-width: 1000px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #2c2c2c, #444); 
+            padding: 40px; border-radius: 5px; border: 10px solid #222; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #555; border: 2px solid #777; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.2rem; }
+        .tab-btn:not(.inactive) { background: #8b0000; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.25rem; line-height: 1.5; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 10px; }
+        .info-list li::before { content: "◈"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .qa-item { background: rgba(0,0,0,0.4); padding: 18px; border-radius: 5px; border-left: 5px solid gold; font-size: 1.2rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; margin-bottom: 5px; font-size: 1.3rem; }
+        
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+
+        #main-video-frame { position: absolute; top: 150px; left: 600px; width: 600px; display: none; z-index: 100; background: #000; border: 4px solid #333; }
+        #instrumentVideo { width: 100%; display: block; }
+
+        /* REPERTORIO STYLES */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 850px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 150px; cursor: pointer; z-index: 10001; }
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 75%; margin-top: 170px; z-index: 10002; }
+        .rep-links li { margin-bottom: 10px; padding: 8px 0; border-bottom: 1px dashed rgba(74, 44, 15, 0.3); }
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.3rem; cursor: pointer; display: block; transition: 0.2s; line-height: 1.2; }
+        .rep-links a:hover { color: #8b0000; transform: scale(1.03); }
+
+        #rep-video-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 20000; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; 
+        }
+        #repVideoPlayer { width: 85%; max-height: 80%; border: 3px solid gold; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    
+    <img src="photos/flute.png" id="flute-obj" class="instrument" onclick="toggleMenu('flute')">
+    <img src="photos/piccolo.png" id="piccolo-obj" class="instrument" onclick="toggleMenu('piccolo')">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleInstrumentSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <video id="instrumentVideo" controls src=""></video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            
+            <h1 id="info-title" style="color:gold; text-align:center; font-size: 2.5rem;"></h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="content-flute" class="instr-content" style="display:none;">
+                <div class="info-text-box">
+                    <ul class="info-list">
+                        <li>Το φλάουτο είναι ένα από τα παλαιότερα μουσικά όργανα και ανήκει στα ξύλινα πνευστά.</li>
+                        <li>Ταξινομείται ως αερόφωνο, καθώς ο ήχος παράγεται από τη δόνηση της στήλης του αέρα.</li>
+                        <li>Η παραγωγή ήχου γίνεται φυσώντας πάνω από την αιχμηρή άκρη της τρύπας του επιστομίου.</li>
+                        <li>Αποτελείται από τρία κύρια μέρη: την κεφαλή, το σώμα και το πόδι.</li>
+                        <li>Διαθέτει μηχανισμό με κλειδιά (συνήθως 16) για τον έλεγχο των τρυπών.</li>
+                        <li>Στην προϊστορία κατασκευαζόταν από κόκαλα ζώων και ελεφαντόδοντο.</li>
+                        <li>Τα σύγχρονα όργανα είναι μεταλλικά (ασήμι, νικέλιο, χρυσός).</li>
+                        <li>Ο Theobald Boehm τελειοποίησε το σύστημα κλειδιών τον 19ο αιώνα.</li>
+                        <li>Η οικογένεια περιλαμβάνει το άλτο, το μπάσο και το κοντραμπάσο φλάουτο.</li>
+                        <li>Υπάρχουν παραδοσιακά είδη όπως το bansuri, το dizi και το shakuhachi.</li>
+                        <li>Η τεχνική βασίζεται στον έλεγχο της αναπνοής μέσω του διαφράγματος.</li>
+                        <li>Χρησιμοποιείται το "tonguing" για καθαρές αρθρώσεις των νοτών.</li>
+                        <li>Το βιμπράτο προσθέτει εκφραστικότητα και βάθος στον ήχο.</li>
+                        <li>Απαιτείται καθημερινό στέγνωμα εσωτερικά με ειδική ράβδο και πανί.</li>
+                        <li>Κορυφαίοι συνθέτες: Μότσαρτ, Βιβάλντι, Μπαχ και Ντεμπυσύ.</li>
+                    </ul>
+                </div>
+                <div class="qa-text-box" style="display:none;">
+                    <div class="qa-grid">
+                        <div class="qa-item"><span class="qa-q">1. Τι είναι το φλάουτο;</span> Μουσικό όργανο των ξύλινων πνευστών, ονομάζεται αερόφωνο.</div>
+                        <div class="qa-item"><span class="qa-q">2. Είναι πολύ παλιό όργανο;</span> Ναι, από τα αρχαιότερα στον κόσμο.</div>
+                        <div class="qa-item"><span class="qa-q">3. Το αρχαιότερο εύρημα;</span> Το φλάουτο Divje Babe (60.000 ετών) από κόκαλο αρκούδας.</div>
+                        <div class="qa-item"><span class="qa-q">4. Υλικά αρχαιότητας;</span> Κόκαλα ζώων, ελεφαντόδοντο, καλάμια ή μπαμπού.</div>
+                        <div class="qa-item"><span class="qa-q">5. Παραγωγή ήχου;</span> Φυσώντας λεπτή δέσμη αέρα πάνω από την τρύπα του επιστομίου.</div>
+                        <div class="qa-item"><span class="qa-q">6. Μέρη μοντέρνου φλάουτου;</span> Κεφαλή, σώμα και πόδι.</div>
+                        <div class="qa-item"><span class="qa-q">7. Γιατί «ξύλινο»;</span> Λόγω της ιστορικής του κατασκευής και του τρόπου παραγωγής ήχου.</div>
+                        <div class="qa-item"><span class="qa-q">8. Βαθύς ήχος;</span> Το άλτο φλάουτο έχει πιο γλυκό και πλούσιο ήχο.</div>
+                        <div class="qa-item"><span class="qa-q">9. Πολύ μεγάλα φλάουτα;</span> Το μπάσο και το τεράστιο κοντραμπάσο φλάουτο.</div>
+                        <div class="qa-item"><span class="qa-q">10. Ποιος το εξέλιξε;</span> Ο Theobald Boehm με το σύστημα μεταλλικών κλειδιών.</div>
+                        <div class="qa-item"><span class="qa-q">11. Τεχνική στόματος;</span> Λέγεται «επιστόμιο», φυσάμε προς την τρύπα στην ειδική πλάκα.</div>
+                        <div class="qa-item"><span class="qa-q">12. Αξεσουάρ;</span> Θήκη, ράβδος καθαρισμού και πανάκι.</div>
+                        <div class="qa-item"><span class="qa-q">13. Αλλαγή νότας;</span> Με το κλείσιμο των κλειδιών αλλάζει το μήκος της στήλης αέρα.</div>
+                        <div class="qa-item"><span class="qa-q">14. Διάσημοι συνθέτες;</span> Μότσαρτ, Βιβάλντι και ο Ντεμπυσύ με τη «Συρίνξ».</div>
+                        <div class="qa-item"><span class="qa-q">15. Καθαρισμός;</span> Σκούπισμα υγρασίας εσωτερικά μετά από κάθε παίξιμο.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-piccolo" class="instr-content" style="display:none;">
+                <div class="info-text-box">
+                    <ul class="info-list">
+                        <li>Είναι το «μικρό αδελφάκι» του φλάουτου. Στα ιταλικά σημαίνει «μικρό».</li>
+                        <li>Έχει το μισό μέγεθος από το φλάουτο (περίπου 32 εκατοστά).</li>
+                        <li>Παίζει μία οκτάβα πιο ψηλά από το κανονικό φλάουτο.</li>
+                        <li>Διαθέτει ήχο δυνατό και διαπεραστικό που ακούγεται πάνω από την ορχήστρα.</li>
+                        <li>Συχνά μιμείται το κελάηδισμα των πουλιών ή τον σφυριχτό άνεμο.</li>
+                        <li>Οι μουσικοί χρησιμοποιούν συχνά ωτασπίδες στη μελέτη για προστασία.</li>
+                        <li>Μπορεί να είναι φτιαγμένο από ξύλο γρεναδίλλας, μέταλλο ή πλαστικό.</li>
+                        <li>Είναι βασικό όργανο σε στρατιωτικές μπάντες και παρελάσεις.</li>
+                    </ul>
+                </div>
+                <div class="qa-text-box" style="display:none;">
+                    <div class="qa-grid">
+                        <div class="qa-item"><span class="qa-q">1. Τι σημαίνει η λέξη «πίκολο»;</span> Προέρχεται από τα ιταλικά και σημαίνει «μικρό».</div>
+                        <div class="qa-item"><span class="qa-q">2. Είναι το ίδιο με το φλάουτο;</span> Μοιάζουν, αλλά το πίκολο είναι μικρότερο και παίζει πιο ψηλά.</div>
+                        <div class="qa-item"><span class="qa-q">3. Πόσο μεγάλο είναι;</span> Περίπου το μισό μέγεθος από το φλάουτο (32 εκατοστά).</div>
+                        <div class="qa-item"><span class="qa-q">4. Πώς το κρατάμε;</span> Πλάγια (οριζόντια), όπως το φλάουτο.</div>
+                        <div class="qa-item"><span class="qa-q">5. Ύψος ήχου;</span> Μία οκτάβα ψηλότερος από το φλάουτο.</div>
+                        <div class="qa-item"><span class="qa-q">6. Από τι υλικά είναι φτιαγμένο;</span> Ξύλο γρεναδίλλας, μέταλλο (ασήμι) ή πλαστικό.</div>
+                        <div class="qa-item"><span class="qa-q">7. Πού το ακούμε;</span> Ορχήστρες, στρατιωτικές μπάντες και παρελάσεις.</div>
+                        <div class="qa-item"><span class="qa-q">8. Χαμηλότερη νότα;</span> Συνήθως το Ρε.</div>
+                        <div class="qa-item"><span class="qa-q">9. Πρώτη εμφάνιση σε ορχήστρα;</span> Από τον Μπετόβεν στην 5η Συμφωνία του (1809).</div>
+                        <div class="qa-item"><span class="qa-q">10. Διάσημο σόλο;</span> Το "The Stars and Stripes Forever" του John Philip Sousa.</div>
+                        <div class="qa-item"><span class="qa-q">11. Γιατί ωτασπίδες;</span> Λόγω των πολύ δυνατών και ψηλών συχνοτήτων.</div>
+                        <div class="qa-item"><span class="qa-q">12. Ακούγεται εύκολα;</span> Ναι, ξεχωρίζει πάντα πάνω από όλα τα όργανα.</div>
+                        <div class="qa-item"><span class="qa-q">13. Φροντίδα;</span> Στέγνωμα εσωτερικά με ειδικό πανάκι μετά τη χρήση.</div>
+                        <div class="qa-item"><span class="qa-q">14. Δυσκολία;</span> Το «κούρδισμα» είναι το πιο απαιτητικό κομμάτι.</div>
+                        <div class="qa-item"><span class="qa-q">15. Ίδια δάχτυλα;</span> Ναι, οι βασικές κινήσεις είναι σχεδόν ίδιες με του φλάουτου.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger" onclick="closeRepertorioMenu()"></div>
+            <ul class="rep-links" id="rep-list-content"></ul>
+        </div>
+    </div>
+
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">X</span>
+        <video id="repVideoPlayer" controls></video>
+    </div>
+
+    <script>
+        let currentInstrument = ''; 
+        const sounds = {
+            flute: new Audio('sounds/INSTRUMENTS/Flute.m4a'),
+            piccolo: new Audio('sounds/INSTRUMENTS/Piccolo.m4a')
+        };
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        // ΛΙΣΤΑ ΡΕΠΕΡΤΟΡΙΟΥ ΦΛΑΟΥΤΟΥ
+        const fluteRepertorio = [
+            { t: "Bach - Partita in A minor (12:31)", f: "Bach - Flute Partita in A minor BWV 1013 - Root _ Netherlands Bach Society.mp4", s: 751 },
+            { t: "Beethoven - Serenade op. 41", f: "L. Beethoven_ Serenade for flute and piano in D major, op. 41. I. Entrata. Allegro.mp4", s: 0 },
+            { t: "Mozart - Rondo K. 184 (Lorel Rodríguez)", f: "Mozart_ Rondo en Re mayor, K. Anh. 184 _ Lorel Rodríguez. Joshua Dos Santos.mp4", s: 0 },
+            { t: "Mozart - Rondò in D major, K 184", f: "W. A. Mozart - Rondò in D major, K 184.mp4", s: 0 }
+        ];
+
+        // ΛΙΣΤΑ ΡΕΠΕΡΤΟΡΙΟΥ ΠΙΚΟΛΟ
+        const piccoloRepertorio = [
+            { t: "A. Vivaldi - Piccolo Concerto in C major (RV443)", f: "A. Vivaldi - Piccolo Concerto in C major (RV443).mp4", s: 0 },
+            { t: "Persichetti Parable XII for solo piccolo", f: "Persichetti Parable XII for solo piccolo.mp4", s: 0 }
+        ];
+
+        function stopEverything() {
+            Object.values(sounds).forEach(s => { s.pause(); s.currentTime = 0; });
+            const iVid = document.getElementById('instrumentVideo');
+            if(iVid) iVid.pause();
+            const rVid = document.getElementById('repVideoPlayer');
+            if(rVid) { rVid.pause(); rVid.src = ""; }
+            document.getElementById('main-video-frame').style.display = 'none';
+            document.getElementById('rep-video-container').style.display = 'none';
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleMenu(instr) {
+            const papyros = document.getElementById('papyros-obj');
+            const btns = document.querySelectorAll('.menu-btn');
+            
+            if (papyros.style.display === 'block' && currentInstrument === instr) {
+                stopEverything();
+                papyros.style.display = 'none';
+                btns.forEach(b => b.style.display = 'none');
+                currentInstrument = '';
+            } else {
+                stopEverything();
+                currentInstrument = instr;
+                papyrosSfx.play();
+                papyros.style.display = 'block';
+                btns.forEach(b => b.style.display = 'block');
+            }
+        }
+
+        function showInfo() {
+            stopEverything();
+            document.getElementById('info-overlay').style.display = 'block';
+            document.querySelectorAll('.instr-content').forEach(c => c.style.display = 'none');
+            document.getElementById('content-' + currentInstrument).style.display = 'block';
+            document.getElementById('info-title').innerText = currentInstrument === 'flute' ? 'ΦΛΑΟΥΤΟ' : 'ΠΙΚΟΛΟ';
+            toggleTab('info');
+        }
+
+        function toggleTab(tab) {
+            const currentContent = document.getElementById('content-' + currentInstrument);
+            const infoBox = currentContent.querySelector('.info-text-box');
+            const qaBox = currentContent.querySelector('.qa-text-box');
+            
+            if(tab === 'info') {
+                infoBox.style.display = 'block'; qaBox.style.display = 'none';
+                document.getElementById('btn-info').classList.remove('inactive');
+                document.getElementById('btn-qa').classList.add('inactive');
+            } else {
+                infoBox.style.display = 'none'; qaBox.style.display = 'block';
+                document.getElementById('btn-info').classList.add('inactive');
+                document.getElementById('btn-qa').classList.remove('inactive');
+            }
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function openVideoFrame() {
+            stopEverything();
+            const video = document.getElementById('instrumentVideo');
+            video.src = currentInstrument === 'flute' ? 'instrument/Flute.mp4' : 'instrument/Piccolo.mp4';
+            document.getElementById('main-video-frame').style.display = 'block';
+            video.play();
+        }
+
+        function toggleInstrumentSound() {
+            const wasPlaying = !sounds[currentInstrument].paused;
+            stopEverything();
+            if (!wasPlaying) sounds[currentInstrument].play();
+        }
+
+        function closeInfo() { stopEverything(); document.getElementById('info-overlay').style.display = 'none'; }
+
+        // ΣΥΝΑΡΤΗΣΕΙΣ ΡΕΠΕΡΤΟΡΙΟΥ
+        function openRepertorio() {
+            stopEverything();
+            const list = document.getElementById('rep-list-content');
+            list.innerHTML = '';
+            
+            // Επιλέγει τη σωστή λίστα ανάλογα με το αν έχουμε πατήσει Φλάουτο ή Πίκολο
+            let selectedRep = (currentInstrument === 'flute') ? fluteRepertorio : piccoloRepertorio;
+            
+            selectedRep.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a onclick="playRepVideo('${item.f}', ${item.s})">${item.t}</a>`;
+                list.appendChild(li);
+            });
+            
+            document.getElementById('repertorio-overlay').style.display = 'flex';
+        }
+
+        function playRepVideo(fileName, startTime) {
+            stopEverything();
+            const player = document.getElementById('repVideoPlayer');
+            
+            // Δυναμικό Path ανάλογα με το όργανο
+            let folder = (currentInstrument === 'flute') ? 'FLUTE/' : 'PICCOLO/';
+            player.src = "Repertorio/" + folder + fileName; 
+            
+            document.getElementById('rep-video-container').style.display = 'flex';
+            
+            player.onloadedmetadata = function() {
+                player.currentTime = startTime;
+                player.play();
+            };
+        }
+
+        function closeRepertorioMenu() { document.getElementById('repertorio-overlay').style.display = 'none'; }
+        
+        function closeRepVideo() { 
+            stopEverything(); 
+            document.getElementById('repertorio-overlay').style.display = 'flex'; 
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const currentContent = document.getElementById('content-' + currentInstrument);
+                const activeBox = document.getElementById('btn-info').classList.contains('inactive') ? 
+                                 currentContent.querySelector('.qa-text-box') : 
+                                 currentContent.querySelector('.info-text-box');
+                const utterance = new SpeechSynthesisUtterance(activeBox.innerText);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+    </script>
+</body>
+</html>

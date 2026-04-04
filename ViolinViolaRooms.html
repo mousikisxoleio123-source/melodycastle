@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Δωμάτιο Βιολιού & Βιόλας - Πλήρης Έκδοση</title>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background: #000; font-family: sans-serif; }
+        
+        #bg-layer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: url('ROOMS/VIOLI/VIOLI.jpg'); 
+            background-size: cover; background-position: center; z-index: -2;
+        }
+
+        /* ΟΡΓΑΝΑ */
+        .instrument { position: absolute; cursor: pointer; z-index: 5; transition: transform 0.2s; }
+        #viola-obj { left: 1601px; top: 452px; width: 320px; transform: scale(0.62); }
+        #viola-obj:hover { transform: scale(0.65); }
+        #violin-obj { left: 1469px; top: 376px; width: 280px; transform: scale(0.39); }
+        #violin-obj:hover { transform: scale(0.41); }
+
+        /* Μενού Πάπυρος */
+        #papyros-obj { position: absolute; top: 31px; left: 20px; width: 510px; z-index: 10; display: none; }
+        .menu-btn { position: absolute; display: none; z-index: 20; cursor: pointer; transition: 0.2s; }
+        #video-obj { top: 109px; left: 184px; width: 120px; }
+        #sound-obj { top: 223px; left: 190px; width: 120px; }
+        #iplay-obj { top: 326px; left: 190px; width: 120px; }
+        #rplay-obj { top: 449px; left: 191px; width: 120px; }
+
+        /* ΠΕΤΡΙΝΟ ΠΛΑΙΣΙΟ ΠΛΗΡΟΦΟΡΙΩΝ */
+        #info-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.85); z-index: 15000; display: none; 
+            overflow-y: auto; backdrop-filter: blur(5px); 
+        }
+        #info-content { 
+            width: 85%; max-width: 950px; margin: 2% auto; color: #e0e0e0; 
+            background: linear-gradient(135deg, #2c3e50, #000000); 
+            padding: 40px; border-radius: 5px; border: 10px solid #1a1a1a; 
+            box-shadow: inset 0 0 60px #000; position: relative; 
+        }
+        .nav-tabs { text-align: center; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; cursor: pointer; background: #555; border: 2px solid #777; color: white; font-weight: bold; border-radius: 5px; margin: 0 8px; font-size: 1.2rem; }
+        .tab-btn:not(.inactive) { background: #8b0000; border-color: gold; color: gold; box-shadow: 0 0 10px gold; }
+        
+        .info-list { list-style-type: none; padding: 0; font-size: 1.4rem; line-height: 1.6; }
+        .info-list li { position: relative; padding-left: 35px; margin-bottom: 15px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 8px; }
+        .info-list li::before { content: "🎻"; color: gold; position: absolute; left: 5px; }
+        
+        .qa-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .qa-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 5px; border-left: 4px solid gold; font-size: 1.3rem; }
+        .qa-q { font-weight: bold; color: gold; display: block; font-size: 1.4rem; }
+        
+        .speak-btn { display: block; margin: 0 auto 20px; padding: 10px 25px; cursor: pointer; background: #111; border: 2px solid gold; color: gold; border-radius: 30px; font-weight: bold; }
+        .close-x-info { position: absolute; top: 20px; right: 30px; font-size: 50px; color: gold; cursor: pointer; font-weight: bold; }
+
+        /* REPERTORIO ΠΑΠΥΡΟΣ */
+        #repertorio-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+        }
+        #repertorio-papyros { 
+            position: relative; width: 900px; height: 850px; 
+            background-image: url('photos/papyros.png'); 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        #close-trigger { position: absolute; top: 0; left: 0; width: 100%; height: 150px; cursor: pointer; z-index: 10001; }
+        
+        .rep-links { list-style: none; padding: 0; text-align: center; width: 80%; margin-top: 170px; z-index: 10002; }
+        .rep-links li { margin: 0; padding: 10px 0; border-bottom: 1px dashed rgba(74, 44, 15, 0.4); }
+        .rep-links li:last-child { border-bottom: none; }
+        .rep-links a { color: #4a2c0f; font-weight: bold; text-decoration: none; font-size: 1.5rem; cursor: pointer; display: block; transition: 0.2s; line-height: 1.2; }
+        .rep-links a:hover { color: #8b0000; transform: scale(1.03); }
+
+        /* Video Players */
+        #rep-video-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 20000; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; 
+        }
+        #repVideoPlayer { width: 85%; max-height: 80%; border: 3px solid gold; }
+        .close-x-rep { position: absolute; top: 30px; right: 40px; font-size: 50px; color: white; cursor: pointer; font-weight: bold; }
+
+        #main-video-frame {
+            position: absolute; top: 150px; left: 600px; width: 600px; 
+            display: none; z-index: 1; background: #000; 
+            border: 4px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        #instrumentVideo { width: 100%; display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    
+    <img src="photos/viola.png" id="viola-obj" class="instrument" onclick="toggleMenu('viola')">
+    <img src="photos/violin.png" id="violin-obj" class="instrument" onclick="toggleMenu('violin')">
+
+    <img src="ROOMS/papirosopen.png" id="papyros-obj">
+    <img src="ROOMS/videoplay.jpg" id="video-obj" class="menu-btn" onclick="openVideoFrame()">
+    <img src="ROOMS/soundplay.png" id="sound-obj" class="menu-btn" onclick="toggleInstrumentSound()">
+    <img src="ROOMS/iplay.png" id="iplay-obj" class="menu-btn" onclick="showInfo()">
+    <img src="ROOMS/rplay.png" id="rplay-obj" class="menu-btn" onclick="openRepertorio()">
+
+    <div id="main-video-frame">
+        <video id="instrumentVideo" controls></video>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="close-x-info" onclick="closeInfo()">&times;</span>
+            <div class="nav-tabs">
+                <button id="btn-info" class="tab-btn" onclick="toggleTab('info')">ΠΛΗΡΟΦΟΡΙΕΣ</button>
+                <button id="btn-qa" class="tab-btn inactive" onclick="toggleTab('qa')">ΕΡΩΤΗΣΕΙΣ-ΑΠΑΝΤΗΣΕΙΣ</button>
+            </div>
+            <h1 id="info-title" style="color:gold; text-align:center; font-size: 2.5rem;"></h1>
+            <button class="speak-btn" onclick="toggleSpeech()">🔊 ΑΚΟΥΣΕ ΤΗΝ ΕΚΦΩΝΗΣΗ</button>
+
+            <div id="info-text"></div>
+            <div id="qa-text" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div id="repertorio-overlay">
+        <div id="repertorio-papyros">
+            <div id="close-trigger" onclick="closeRepertorioMenu()"></div>
+            <ul class="rep-links" id="rep-list-content"></ul>
+        </div>
+    </div>
+
+    <div id="rep-video-container">
+        <span class="close-x-rep" onclick="closeRepVideo()">X</span>
+        <video id="repVideoPlayer" controls></video>
+    </div>
+
+    <script>
+        let currentInstrument = '';
+        const papyrosSfx = new Audio('sounds/soundpapyr.mp3');
+        const synth = window.speechSynthesis;
+        let isSpeaking = false;
+        let currentAudio = null;
+
+        const data = {
+            violin: {
+                title: "ΒΙΟΛΙ",
+                video: "instrument/violin.mp4",
+                audio: "sounds/INSTRUMENTS/violin.m4a",
+                repPath: "Repertorio/VIOLIN/",
+                info: `
+                    <ul class="info-list">
+                        <li><b>Είναι το «μικρό» της οικογένειας:</b> Το βιολί είναι το πιο μικρό από τα έγχορδα όργανα, αλλά έχει την πιο ψιλή και λαμπερή φωνή!</li>
+                        <li><b>Έχει 4 χορδές:</b> Κάθε χορδή βγάζει και έναν διαφορετικό ήχο. Για να αλλάξουμε τον ήχο, πατάμε τα δάχτυλα μας πάνω στις χορδές.</li>
+                        <li><b>Το «μαγικό» ραβδί (Το Δοξάρι):</b> Χρησιμοποιούμε το δοξάρι. Είναι ένα ξύλινο ραβδί με τρίχες από ουρά αλόγου!</li>
+                        <li><b>Είναι φτιαγμένο από ξύλο:</b> Το σώμα του είναι κούφιο μέσα για να μπορεί ο ήχος να μεγαλώνει και να βγαίνει από τις δύο τρύπες "f".</li>
+                        <li><b>Πού το βάζουμε;</b> Το ακουμπάμε απαλά ανάμεσα στον ώμο και το πηγούνι μας.</li>
+                        <li><b>Μπορεί να τραγουδήσει τα πάντα:</b> Μπορεί να ακούγεται πολύ λυπημένο ή πολύ χαρούμενο και γρήγορο!</li>
+                        <li><b>Παλιά και πολύτιμα:</b> Κάποιες φορές κοστίζει όσο ένα ολόκληρο αεροπλάνο (π.χ. Στραντιβάριους).</li>
+                    </ul>`,
+                qa: `
+                    <div class="qa-grid">
+                        <div class="qa-item"><span class="qa-q">1. Πόσες χορδές έχει το βιολί;</span> Έχει 4 χορδές.</div>
+                        <div class="qa-item"><span class="qa-q">2. Από τι υλικό είναι το σώμα του;</span> Από ξύλο (έλατο και σφένδαμο).</div>
+                        <div class="qa-item"><span class="qa-q">3. Πώς λέγεται το «ραβδί»;</span> Λέγεται δοξάρι.</div>
+                        <div class="qa-item"><span class="qa-q">4. Από τι ζώο είναι οι τρίχες;</span> Από την ουρά του αλόγου.</div>
+                        <div class="qa-item"><span class="qa-q">5. Πώς λέγεται το υλικό για το δοξάρι;</span> Λέγεται ρετσίνι ή κολοφώνιο.</div>
+                        <div class="qa-item"><span class="qa-q">6. Πού ακουμπάμε το βιολί;</span> Ανάμεσα στον ώμο και το πηγούνι μας.</div>
+                        <div class="qa-item"><span class="qa-q">7. Πώς λέγονται οι τρύπες;</span> Λέγονται "f".</div>
+                        <div class="qa-item"><span class="qa-q">8. Πώς λέγεται ο μουσικός;</span> Βιολιστής.</div>
+                        <div class="qa-item"><span class="qa-q">9. Παίζεται με τα δάχτυλα;</span> Ναι, λέγεται πιτσικάτο.</div>
+                        <div class="qa-item"><span class="qa-q">10. Ήχος σε σχέση με το τσέλο;</span> Πολύ πιο ψιλός.</div>
+                        <div class="qa-item"><span class="qa-q">11. Χώρα κατασκευής;</span> Η Ιταλία.</div>
+                        <div class="qa-item"><span class="qa-q">12. Διάσημος κατασκευαστής;</span> Ο Αντόνιο Στραντιβάρι.</div>
+                        <div class="qa-item"><span class="qa-q">13. Τι είναι τα στριφτάρια;</span> Κλειδιά για το κούρδισμα.</div>
+                        <div class="qa-item"><span class="qa-q">14. Τι είναι ο καβαλάρης;</span> Ξύλο που στηρίζει τις χορδές.</div>
+                        <div class="qa-item"><span class="qa-q">15. Πού κάθεται στην ορχήστρα;</span> Μπροστά-μπροστά, κοντά στον μαέστρο.</div>
+                    </div>`,
+                repertorio: [
+                    { t: "Paganini, La Campanella - Clara-Jumi Kang", f: "Clara-Jumi Kang_ Paganini, La Campanella (Arr. Kreisler) (Encore 2_3).mp4" },
+                    { t: "Paganini Caprice No 24 - David Garrett", f: "David Garrett - Paganini Caprice NΊ 24 [concert]..mp4" },
+                    { t: "Ernst: Last Rose of Summer - Typhen Chan", f: "Ernst_ The Last Rose of Summer (Music from Meadowmount - Typhen Chan, violin).mp4" },
+                    { t: "Beethoven Rondo - Nemanja Radulović", f: "Nemanja Radulović records Beethoven_ Violin Concerto in D Major, Op. 61_ III. Rondo (Allegro).mp4" }
+                ]
+            },
+            viola: {
+                title: "ΒΙΟΛΑ",
+                video: "instrument/viola.mp4",
+                audio: "sounds/INSTRUMENTS/viola.m4a",
+                repPath: "Repertorio/VIOLA/",
+                info: `
+                    <ul class="info-list">
+                        <li><b>Είναι λίγο μεγαλύτερη:</b> Η βιόλα είναι πιο πλατιά και λίγο πιο μακριά από το βιολί.</li>
+                        <li><b>Έχει πιο «ζεστή» φωνή:</b> Ο ήχος της είναι πιο βαθύς, γλυκός και μελαγχολικός.</li>
+                        <li><b>Έχει 4 χορδές:</b> Χορδές λίγο πιο χοντρές από του βιολιού για μπάσο ήχο.</li>
+                        <li><b>Κρατιέται στον ώμο:</b> Στηρίζεται ανάμεσα στον ώμο και το πηγούνι.</li>
+                        <li><b>Το «μυστικό» της κλειδί:</b> Χρησιμοποιεί το «κλειδί της άλτο» (κλειδί Ντο).</li>
+                        <li><b>Η καρδιά της ορχήστρας:</b> Ενώνει τα ψηλά βιολιά με τα χαμηλά τσέλα.</li>
+                        <li><b>Πιο βαρύ δοξάρι:</b> Λίγο πιο βαρύ για να κουνάει τις χοντρές χορδές.</li>
+                    </ul>`,
+                qa: `
+                    <div class="qa-grid">
+                        <div class="qa-item"><span class="qa-q">1. Ποιο είναι μεγαλύτερο;</span> Η βιόλα.</div>
+                        <div class="qa-item"><span class="qa-q">2. Πώς είναι ο ήχος της;</span> Πιο βαθύς και ζεστός.</div>
+                        <div class="qa-item"><span class="qa-q">3. Πού στηρίζεται;</span> Στον ώμο και το πηγούνι.</div>
+                        <div class="qa-item"><span class="qa-q">4. Πόσες χορδές έχει;</span> Έχει 4 χορδές.</div>
+                        <div class="qa-item"><span class="qa-q">5. Πώς λέγεται το κλειδί της;</span> Κλειδί της άλτο.</div>
+                        <div class="qa-item"><span class="qa-q">6. Οικογένεια οργάνων;</span> Τοξότα έγχορδα.</div>
+                        <div class="qa-item"><span class="qa-q">7. Θέση στην ορχήστρα;</span> Στη μέση.</div>
+                        <div class="qa-item"><span class="qa-q">8. Το δοξάρι της;</span> Είναι πιο βαρύ.</div>
+                        <div class="qa-item"><span class="qa-q">9. Μοιάζει με το βιολί;</span> Ναι, αλλά είναι πιο πλατιά.</div>
+                        <div class="qa-item"><span class="qa-q">10. Υλικό κατασκευής;</span> Ξύλο.</div>
+                        <div class="qa-item"><span class="qa-q">11. Τρίχες δοξαριού;</span> Από ουρά αλόγου.</div>
+                        <div class="qa-item"><span class="qa-q">12. Παίζεται πιτσικάτο;</span> Ναι.</div>
+                        <div class="qa-item"><span class="qa-q">13. Βάρος;</span> Είναι πιο βαριά από το βιολί.</div>
+                        <div class="qa-item"><span class="qa-q">14. Τι βάζουμε στο δοξάρι;</span> Ρετσίνι ή κολοφώνιο.</div>
+                    </div>`,
+                repertorio: [
+                    { t: "Henri Vieuxtemps - Capriccio", f: "Henri Vieuxtemps - Capriccio for Solo Viola, Op. 55 _ Clayton Leung, ESO Viola.mp4" },
+                    { t: "M. Reger - Suite No.3 - Sarah Strohm", f: "M. Reger, Suite for Solo Viola, Op.131d No.3 - Sarah Strohm.mp4" }
+                ]
+            }
+        };
+
+        function stopEverything() {
+            if(currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+            const iVid = document.getElementById('instrumentVideo');
+            iVid.pause(); iVid.src = "";
+            document.getElementById('main-video-frame').style.display = 'none';
+            const rVid = document.getElementById('repVideoPlayer');
+            rVid.pause(); rVid.src = "";
+            document.getElementById('rep-video-container').style.display = 'none';
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleMenu(inst) {
+            const papyros = document.getElementById('papyros-obj');
+            const btns = document.querySelectorAll('.menu-btn');
+            if (papyros.style.display === 'block' && currentInstrument === inst) {
+                stopEverything();
+                papyros.style.display = 'none';
+                btns.forEach(b => b.style.display = 'none');
+            } else {
+                stopEverything();
+                currentInstrument = inst;
+                papyrosSfx.play();
+                papyros.style.display = 'block';
+                btns.forEach(b => b.style.display = 'block');
+            }
+        }
+
+        function openVideoFrame() {
+            stopEverything();
+            const frame = document.getElementById('main-video-frame');
+            const vid = document.getElementById('instrumentVideo');
+            vid.src = data[currentInstrument].video;
+            frame.style.display = 'block';
+            vid.play();
+        }
+
+        function toggleInstrumentSound() {
+            const wasPlaying = currentAudio && !currentAudio.paused;
+            stopEverything();
+            if (!wasPlaying) {
+                currentAudio = new Audio(data[currentInstrument].audio);
+                currentAudio.play();
+            }
+        }
+
+        function showInfo() {
+            stopEverything();
+            const inst = data[currentInstrument];
+            document.getElementById('info-title').innerText = inst.title;
+            document.getElementById('info-text').innerHTML = inst.info;
+            document.getElementById('qa-text').innerHTML = inst.qa;
+            document.getElementById('info-overlay').style.display = 'block';
+            toggleTab('info');
+        }
+
+        function closeInfo() { document.getElementById('info-overlay').style.display = 'none'; stopEverything(); }
+
+        function toggleTab(tab) {
+            document.getElementById('info-text').style.display = (tab === 'info') ? 'block' : 'none';
+            document.getElementById('qa-text').style.display = (tab === 'qa') ? 'block' : 'none';
+            document.getElementById('btn-info').classList.toggle('inactive', tab !== 'info');
+            document.getElementById('btn-qa').classList.toggle('inactive', tab !== 'qa');
+            synth.cancel(); isSpeaking = false;
+        }
+
+        function toggleSpeech() {
+            if (isSpeaking) { synth.cancel(); isSpeaking = false; } 
+            else {
+                const activeId = document.getElementById('btn-info').classList.contains('inactive') ? 'qa-text' : 'info-text';
+                const utterance = new SpeechSynthesisUtterance(document.getElementById(activeId).innerText);
+                utterance.lang = 'el-GR';
+                utterance.onend = () => isSpeaking = false;
+                synth.speak(utterance);
+                isSpeaking = true;
+            }
+        }
+
+        function openRepertorio() {
+            stopEverything();
+            const list = document.getElementById('rep-list-content');
+            list.innerHTML = '';
+            const repData = data[currentInstrument].repertorio;
+            if(repData.length === 0) {
+                list.innerHTML = '<li><a style="cursor:default">Το ρεπερτόριο θα προστεθεί σύντομα</a></li>';
+            } else {
+                repData.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a onclick="playRepVideo('${item.f}')">${item.t}</a>`;
+                    list.appendChild(li);
+                });
+            }
+            document.getElementById('repertorio-overlay').style.display = 'flex';
+        }
+
+        function closeRepertorioMenu() { document.getElementById('repertorio-overlay').style.display = 'none'; }
+
+        function playRepVideo(fileName) {
+            stopEverything();
+            const path = data[currentInstrument].repPath;
+            document.getElementById('repVideoPlayer').src = path + fileName;
+            document.getElementById('rep-video-container').style.display = 'flex';
+            document.getElementById('repVideoPlayer').play();
+        }
+
+        function closeRepVideo() { 
+            stopEverything(); 
+            document.getElementById('repertorio-overlay').style.display = 'flex'; 
+        }
+    </script>
+</body>
+</html>
